@@ -1,4 +1,27 @@
-FROM alpine:latest
+FROM alpine:latest as rootfs-stage
+
+# environment
+ENV ARCH=x86_64
+ENV MIRROR=http://dl-cdn.alpinelinux.org/alpine
+ENV HOME="/root"
+
+
+# install base packages
+RUN \
+ apk add --no-cache \
+	bash \
+	coreutils \
+	curl
+
+# Create user
+RUN \
+ echo "**** create abc user and make folders ****" && \
+ groupmod -g 1000 users && \
+ useradd -u 911 -U -d /config -s /bin/false abc && \
+ usermod -G users abc && \
+ mkdir -p \
+	/config \
+	/defaults
 
 # Install build dependencies
 RUN \
@@ -9,14 +32,14 @@ RUN \
 	gcc \
 	libffi-dev \
 	openssl-dev \
-	python3-dev
-
+	python3-dev \
+	tar
 
 # Install runtime packages
 RUN \
  echo "**** install runtime packages ****" && \
  apk add --no-cache --upgrade \
-	curl \
+	ca-certificates \
 	fail2ban \
 	gnupg \
 	memcached \
@@ -61,3 +84,5 @@ RUN \
 
 # copy local files
 COPY root/ /
+
+ENTRYPOINT ["/init"]
