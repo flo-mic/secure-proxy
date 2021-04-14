@@ -1,4 +1,4 @@
-FROM alpine:latest as rootfs-stage
+FROM alpine:latest
 
 # environment
 ENV ARCH=x86_64
@@ -11,7 +11,8 @@ RUN \
  apk add --no-cache \
 	bash \
 	coreutils \
-	curl
+	curl \
+	shadow
 
 # Create user
 RUN \
@@ -31,7 +32,7 @@ RUN \
 	g++ \
 	gcc \
 	libffi-dev \
-	openssl-dev \
+	#openssl-dev \
 	python3-dev \
 	tar
 
@@ -43,29 +44,8 @@ RUN \
 	fail2ban \
 	gnupg \
 	memcached \
-	nginx \
-	nginx-mod-http-brotli \
-	nginx-mod-http-dav-ext \
-	nginx-mod-http-echo \
-	nginx-mod-http-fancyindex \
-	nginx-mod-http-geoip2 \
-	nginx-mod-http-headers-more \
-	nginx-mod-http-image-filter \
-	nginx-mod-http-nchan \
-	nginx-mod-http-perl \
-	nginx-mod-http-redis2 \
-	nginx-mod-http-set-misc \
-	nginx-mod-http-upload-progress \
-	nginx-mod-http-xslt-filter \
-	nginx-mod-mail \
-	nginx-mod-rtmp \
-	nginx-mod-stream \
-	nginx-mod-stream-geoip2 \
-	nginx-vim \
-	py3-cryptography \
-	py3-future \
-	py3-pip \
-	whois
+	nginx 
+
 
 
 # Cleanup before deploying
