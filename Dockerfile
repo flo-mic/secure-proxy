@@ -1,9 +1,6 @@
 FROM alpine:latest
 
-# environment settings
-ENV DHLEVEL=2048 ONLY_SUBDOMAINS=false AWS_CONFIG_FILE=/config/dns-conf/route53.ini
-ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
-
+# Install build dependencies
 RUN \
  echo "**** install build packages ****" && \
  apk add --no-cache --virtual=build-dependencies \
@@ -14,6 +11,8 @@ RUN \
 	openssl-dev \
 	python3-dev
 
+
+# Install runtime packages
 RUN \
  echo "**** install runtime packages ****" && \
  apk add --no-cache --upgrade \
@@ -21,7 +20,44 @@ RUN \
 	fail2ban \
 	gnupg \
 	memcached \
-	nginx
+	nginx \
+	nginx-mod-http-brotli \
+	nginx-mod-http-dav-ext \
+	nginx-mod-http-echo \
+	nginx-mod-http-fancyindex \
+	nginx-mod-http-geoip2 \
+	nginx-mod-http-headers-more \
+	nginx-mod-http-image-filter \
+	nginx-mod-http-nchan \
+	nginx-mod-http-perl \
+	nginx-mod-http-redis2 \
+	nginx-mod-http-set-misc \
+	nginx-mod-http-upload-progress \
+	nginx-mod-http-xslt-filter \
+	nginx-mod-mail \
+	nginx-mod-rtmp \
+	nginx-mod-stream \
+	nginx-mod-stream-geoip2 \
+	nginx-vim \
+	py3-cryptography \
+	py3-future \
+	py3-pip \
+	whois
 
-# add local files
+
+# Cleanup before deploying
+RUN \
+ echo "**** cleanup ****" && \
+ apk del --purge \
+	build-dependencies && \
+ for cleanfiles in *.pyc *.pyo; \
+	do \
+	find /usr/lib/python3.*  -iname "${cleanfiles}" -exec rm -f '{}' + \
+	; done && \
+ rm -rf \
+	/tmp/* \
+	/root/.cache \
+	/root/.cargo
+
+# copy local files
 COPY root/ /

@@ -1,0 +1,42 @@
+#! /bin/bash
+
+PUID=${PUID:-911}
+PGID=${PGID:-911}
+
+groupmod -o -g "$PGID" abc
+usermod -o -u "$PUID" abc
+
+echo '
+-------------------------------------
+ ___  __    __    __  __     ____
+/ __| \ \  /  \  / / /  \   / __/_
+\__ \  \ \/ /\ \/ / / __ \ | |_/  \
+|___/   \__/  \__/ /_/  \_\ \___/|_|
+
+-------------------------------------'
+-------------------------------------
+echo "
+User uid:    $(id -u abc)
+User gid:    $(id -g abc)
+-------------------------------------
+"
+
+time32="$(date +%Y)"
+
+if [[ "${time32}" == "1970" || "${time32}" == "1969" ]] && [ "$(uname -m)" == "armv7l" ]; then
+  echo '
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Your DockerHost is most likely running an outdated version of libseccomp
+
+To fix this, please visit https://docs.linuxserver.io/faq#libseccomp
+
+Some apps might not behave correctly without this
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+'
+fi
+
+chown abc:abc /app
+chown abc:abc /config
+chown abc:abc /defaults
