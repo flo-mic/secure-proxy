@@ -1,0 +1,25 @@
+#!/usr/bin/with-contenv bash
+
+PUID=${PUID:-911}
+PGID=${PGID:-911}
+
+groupmod -o -g "$PGID" swag
+usermod -o -u "$PUID" swag
+
+echo '
+-------------------------------------
+ ___  __    __    __  __     ____
+/ __| \ \  /  \  / / /  \   / __/_
+\__ \  \ \/ /\ \/ / / __ \ | |_/  \
+|___/   \__/  \__/ /_/  \_\ \___/|_|
+
+-------------------------------------
+-------------------------------------'
+echo "
+User uid:    $(id -u swag)
+User gid:    $(id -g swag)
+-------------------------------------
+"
+
+chown swag:swag /config
+chown swag:swag /defaults
