@@ -32,12 +32,10 @@ jobs:
           docker tag ${{ github.sha }} ghcr.io/${ENDPOINT}:${VERSION}-${{ github.sha }}
 
       - name: Login to GitHub Container Registry
-        if: ${{ secrets.GH_USER && secrets.GH_TOKEN }}
         run: |
           echo "${{ secrets.GH_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GH_USER }} --password-stdin
 
       - name: Push tags to GitHub Container Registry
-        if: ${{ secrets.CR_USER && secrets.CR_PAT }}
         run: |
           docker push ghcr.io/${ENDPOINT}:${VERSION}-${{ github.sha }}
           docker push ghcr.io/${ENDPOINT}:${VERSION}
