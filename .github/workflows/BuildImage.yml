@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  ENDPOINT: "swag"
+  ENDPOINT: "flo-mic/swag"
   VERSION: "latest"
   
 jobs:
