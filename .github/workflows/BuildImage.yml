@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  ENDPOINT: "swag"
+  ENDPOINT: "flo-mic/swag"
   VERSION: "latest"
   
 jobs:
@@ -32,12 +32,10 @@ jobs:
           docker tag ${{ github.sha }} ghcr.io/${ENDPOINT}:${VERSION}-${{ github.sha }}
 
       - name: Login to GitHub Container Registry
-        if: env.GH_USER && env.GH_TOKEN
         run: |
           echo "${{ secrets.GH_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GH_USER }} --password-stdin
 
       - name: Push tags to GitHub Container Registry
-        if: env.CR_USER && env.CR_PAT
         run: |
           docker push ghcr.io/${ENDPOINT}:${VERSION}-${{ github.sha }}
           docker push ghcr.io/${ENDPOINT}:${VERSION}
