@@ -1,10 +1,11 @@
 FROM alpine:latest
 
 # environment
-ENV ARCH=x86_64
-ENV MIRROR=http://dl-cdn.alpinelinux.org/alpine
-ENV HOME="/root"
-
+ENV ARCH=x86_64 \
+MIRROR=http://dl-cdn.alpinelinux.org/alpine \
+HOME="/root" \
+PS1="$(whoami)@$(hostname):$(pwd)\\$ " \
+TERM="xterm"
 
 # install base packages
 RUN \
@@ -12,14 +13,15 @@ RUN \
 	bash \
 	coreutils \
 	curl \
-	shadow
+	shadow \
+	whoami
 
 # Create user
 RUN \
- echo "**** create abc user and make folders ****" && \
+ echo "**** create swag user and make folders ****" && \
  groupmod -g 1000 users && \
- useradd -u 911 -U -d /config -s /bin/false abc && \
- usermod -G users abc && \
+ useradd -u 911 -U -d /config -s /bin/false swag && \
+ usermod -G users swag && \
  mkdir -p \
 	/config \
 	/defaults
@@ -62,6 +64,8 @@ RUN \
 	/root/.cache \
 	/root/.cargo
 
+# Download dhparam key from https://2ton.com.au/dhtool/
+#Get new DHPARAM wget -o /home/florian/tmp/dhparam https://2ton.com.au/dhparam/4096
 # copy local files
 COPY root/ /
 

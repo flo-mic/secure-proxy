@@ -3,8 +3,8 @@
 PUID=${PUID:-911}
 PGID=${PGID:-911}
 
-groupmod -o -g "$PGID" abc
-usermod -o -u "$PUID" abc
+groupmod -o -g "$PGID" swag
+usermod -o -u "$PUID" swag
 
 echo '
 -------------------------------------
@@ -16,8 +16,8 @@ echo '
 -------------------------------------'
 -------------------------------------
 echo "
-User uid:    $(id -u abc)
-User gid:    $(id -g abc)
+User uid:    $(id -u swag)
+User gid:    $(id -g swag)
 -------------------------------------
 "
 
@@ -37,6 +37,6 @@ Some apps might not behave correctly without this
 '
 fi
 
-chown abc:abc /app
-chown abc:abc /config
-chown abc:abc /defaults
+chown swag:swag /app
+chown swag:swag /config
+chown swag:swag /defaults
