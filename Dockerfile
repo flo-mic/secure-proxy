@@ -13,12 +13,11 @@ RUN \
 	bash \
 	coreutils \
 	curl \
-	shadow \
-	whoami
+	shadow
 
 # Create user
 RUN \
- echo "**** create swag user and make folders ****" && \
+ echo "**** create user and make folders ****" && \
  groupmod -g 1000 users && \
  useradd -u 911 -U -d /config -s /bin/false swag && \
  usermod -G users swag && \
@@ -35,7 +34,7 @@ RUN \
 	gcc \
 	libffi-dev \
 	#openssl-dev \
-	python3-dev \
+	#python3-dev \
 	tar
 
 # Install runtime packages
@@ -52,13 +51,13 @@ RUN \
 
 # Cleanup before deploying
 RUN \
- echo "**** cleanup ****" && \
+ echo "**** clean unneeded files ****" && \
  apk del --purge \
 	build-dependencies && \
- for cleanfiles in *.pyc *.pyo; \
-	do \
-	find /usr/lib/python3.*  -iname "${cleanfiles}" -exec rm -f '{}' + \
-	; done && \
+ #for cleanfiles in *.pyc *.pyo; \
+#	do \
+#	find /usr/lib/python3.*  -iname "${cleanfiles}" -exec rm -f '{}' + \
+#	; done && \
  rm -rf \
 	/tmp/* \
 	/root/.cache \

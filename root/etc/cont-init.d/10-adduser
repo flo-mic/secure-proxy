@@ -21,22 +21,6 @@ User gid:    $(id -g swag)
 -------------------------------------
 "
 
-time32="$(date +%Y)"
-
-if [[ "${time32}" == "1970" || "${time32}" == "1969" ]] && [ "$(uname -m)" == "armv7l" ]; then
-  echo '
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-Your DockerHost is most likely running an outdated version of libseccomp
-
-To fix this, please visit https://docs.linuxserver.io/faq#libseccomp
-
-Some apps might not behave correctly without this
-
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-'
-fi
-
 chown swag:swag /app
 chown swag:swag /config
 chown swag:swag /defaults
