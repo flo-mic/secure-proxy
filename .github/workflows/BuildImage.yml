@@ -1,0 +1,44 @@
+# This Workflow will build a docker ocntainer an dpublis it on the github container registry
+name: Build image and deploy to contaienr registry
+
+on:
+  # Run on each commit to main branch
+  push:
+    branches: [ main ]
+  # Allow run on demand
+  workflow_dispatch:
+
+env:
+  ENDPOINT: "swag"
+  VERSION: "latest"
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      
+      - name: Build image
+        run: |
+          docker build --no-cache -t ${{ github.sha }} .
+          
+      - name: Tag image
+        run: |
+          docker tag ${{ github.sha }} ${ENDPOINT}:${VERSION}
+          docker tag ${{ github.sha }} ${ENDPOINT}:${VERSION}-${{ github.sha }}
+          docker tag ${{ github.sha }} ghcr.io/${ENDPOINT}:${VERSION}
+          docker tag ${{ github.sha }} ghcr.io/${ENDPOINT}:${VERSION}-${{ github.sha }}
+
+      - name: Login to GitHub Container Registry
+        if: env.GH_USER && env.GH_TOKEN
+        run: |
+          echo "${{ secrets.GH_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GH_USER }} --password-stdin
+
+      - name: Push tags to GitHub Container Registry
+        if: env.CR_USER && env.CR_PAT
+        run: |
+          docker push ghcr.io/${ENDPOINT}:${VERSION}-${{ github.sha }}
+          docker push ghcr.io/${ENDPOINT}:${VERSION}
+      
