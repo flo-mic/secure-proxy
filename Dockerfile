@@ -14,6 +14,7 @@ RUN \
 	bash \
 	coreutils \
 	curl \
+   nano \
 	shadow
 
 # environment variables
@@ -27,7 +28,7 @@ ENV \
 # add s6 overlay
 ADD https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-amd64-installer /tmp/
 
-# Install all required components
+# Prepare base image
 RUN \
  chmod +x /tmp/s6-overlay-amd64-installer && \
  /tmp/s6-overlay-amd64-installer / && \
@@ -39,7 +40,7 @@ RUN \
  usermod -G users swag && \
  mkdir -p \
     /config \
-    /defaults
+    /default
 
  ##
  # BASE image preparation done
@@ -59,26 +60,28 @@ RUN \
  # Install runtime packages
  echo "**** install runtime packages ****" && \
  apk add --no-cache --upgrade \
+    apache2-utils \
     ca-certificates \
     fail2ban \
     gnupg \
     memcached \
     nginx && \
+ echo "**** copy fail2ban config to /default ****" && \
+ rm /etc/fail2ban/jail.d/alpine-ssh.conf && \
+ mkdir -p /default/fail2ban && \
+ mv /etc/fail2ban/action.d /default/fail2ban/ && \
+ mv /etc/fail2ban/filter.d /default/fail2ban/ && \
  # Cleanup before deploying
  echo "**** clean build files ****" && \
  apk del --purge \
 	build-dependencies && \
- for cleanfiles in *.pyc *.pyo; do \
- 	find /usr/lib/python3.*  -iname "${cleanfiles}" -exec rm -f '{}' + \
- 	; done && \
  rm -rf \
     /tmp/* \
     /root/.cache \
-    /root/.cargo
-
-# Download dhparam key from https://2ton.com.au/dhtool/
-# Get new DHPARAM wget -o /home/user/tmp/dhparam https://2ton.com.au/dhparam/4096
-# copy local files
+    /root/.cargo && \
+for myfile in *.pyc *.pyo; do \
+ 	find /usr/lib/python3.*  -iname "${myfile}" -exec rm -f '{}' + \
+ 	; done
 
 # Copy/replace root files
 COPY root/ /

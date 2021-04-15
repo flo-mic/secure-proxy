@@ -1,0 +1,7 @@
+#!/usr/bin/with-contenv bash
+
+# fix/improve permissions
+chown -R swag:swag /config
+#chmod -R 0644 /etc/logrotate.d
+chmod -R +r /config/logs
+#chmod +x /app/le-renew.sh

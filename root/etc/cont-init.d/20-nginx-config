@@ -1,0 +1,49 @@
+#!/usr/bin/with-contenv bash
+
+# Create needed folder
+mkdir -p /config/logs
+mkdir -p /config/logs/nginx
+mkdir -p /config/nginx
+mkdir -p /config/nginx/http.d
+mkdir -p /config/www
+mkdir -p /config/www/default
+
+# copy needed files
+cp -R /default/nginx/proxy.d /config/nginx/
+
+# Copy default files if not exist
+if [[ ! -f /config/nginx/nginx.conf ]]; then
+	cp /default/nginx/nginx.conf /config/nginx/nginx.conf
+fi
+if [[ ! -f /config/nginx/proxy.conf ]]; then
+	cp /default/nginx/proxy.conf /config/nginx/proxy.conf
+fi
+if [[ ! -f /config/nginx/ssl.conf ]]; then
+	cp /default/nginx/ssl.conf /config/nginx/ssl.conf
+fi
+if [[ ! -f /config/nginx/http.d/default ]]; then
+	cp /default/nginx/http.d/default /config/nginx/http.d/default
+fi
+if [[ ! -f /config/nginx/www/default/error.html ]]; then
+	cp /default/nginx/www/default/error.html /config/www/default/error.html
+fi
+
+# Download dhparam key from https://2ton.com.au/dhtool/
+if [ ! -f "/config/nginx/dhparam4096.pem" ]; then
+    echo "**** downloading fresh generated 4096 dhparam key ****"
+    echo "**** this process can not guarantee a unique key ****"
+    echo "**** for more security create a your own dhparam ****"
+    curl -s https://2ton.com.au/dhparam/4096 > /config/nginx/dhparam4096.pem
+fi
+if ! grep -q 'PARAMETERS' "/config/nginx/dhparam4096.pem"; then
+  echo "Generating dhparams.pem. This will take a long time. Do not stop the container until this process is completed."
+  openssl dhparam -out /config/nginx/dhparam4096.pem 4096
+fi
+
+# Generate nginx log files
+if [[ ! -f /config/logs/nginx/error.log ]]; then
+	touch /config/logs/nginx/error.log
+fi
+if [[ ! -f /config/logs/nginx/access.log ]]; then
+	touch /config/logs/nginx/access.log
+fi

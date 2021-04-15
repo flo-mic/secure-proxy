@@ -1,0 +1,9 @@
+#!/usr/bin/with-contenv bash
+
+# Create needed folders
+mkdir -p /config/logs/letsencrypt
+mkdir -p /config/letsencrypt
+
+# Remove default folder and create symlink
+rm -rf /etc/letsencrypt
+ln -s /config/letsencrypt /etc/letsencrypt

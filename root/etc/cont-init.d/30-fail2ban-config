@@ -1,0 +1,32 @@
+#!/usr/bin/with-contenv bash
+
+# Create needed folders
+mkdir -p /config/fail2ban
+mkdir -p /config/logs/fail2ban
+mkdir -p /var/run/fail2ban
+
+# copy fail2ban default config
+cp -R /default/fail2ban/filter.d /config/fail2ban/
+cp -R /default/fail2ban/action.d /config/fail2ban/
+
+# Copy fail2ban jail if not already available
+if [[ ! -f /config/fail2ban/jail.local ]]; then 
+	cp /default/fail2ban/jail.local /config/fail2ban/jail.local
+fi
+
+# Replace fail2ban config with user config
+if [[ -d /etc/fail2ban/filter.d ]]; then
+	rm -rf /etc/fail2ban/filter.d
+fi
+if [[ -d /etc/fail2ban/action.d ]]; then
+	rm -rf /etc/fail2ban/action.d
+fi
+cp -R /config/fail2ban/filter.d /etc/fail2ban/
+cp -R /config/fail2ban/action.d /etc/fail2ban/
+cp /default/fail2ban/fail2ban.local /etc/fail2ban/fail2ban.local
+cp /config/fail2ban/jail.local /etc/fail2ban/jail.local
+
+# Generate fail2ban log files
+if [[ ! -f /config/logs/fail2ban/fail2ban.log ]]; then
+	touch /config/logs/fail2ban/fail2ban.log
+fi

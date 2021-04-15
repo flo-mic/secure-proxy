@@ -1,0 +1,35 @@
+/config/log/letsencrypt/*.log {
+ 
+    # rotate log files daily, weekly...
+    weekly
+
+    # keep X retentions versions
+    rotate 52
+    
+    # uncomment this if you want your log files compressed
+    compress
+
+    # Postpone compression of the previous log file to the next rotation cycle
+    delaycompress
+
+    # create new (empty) log files after rotating old ones
+    #create
+
+    # If the log file is missing, go on to the next one without issuing an error message
+    missingok
+
+    # Do not archive old versions of log files with date extension
+    nodateext
+    
+    # Do not rotate the log if it is empty
+    notifempty
+
+    # If sharedscript is specified, the scripts are only run once, no matter how many logs match the wildcarded pattern
+    sharedscripts
+    
+    # Content to execute after script execution
+    #postrotate
+    #endscript
+
+    su swag swag
+}
