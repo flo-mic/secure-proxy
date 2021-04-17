@@ -1,0 +1,18 @@
+#!/usr/bin/with-contenv bash
+
+# Listens for file changes on nginx config files
+function wait_for_changes {
+  inotifywait -rq \
+    --event modify,move,create,delete \
+    /config/nginx
+}
+
+# Loop for filechanges and automatic nginx reload in case of changes
+while wait_for_changes; do
+  if /usr/sbin/nginx -c /config/nginx/nginx.conf -t; then
+    echo "Changes to nginx config detected and validated, reloading nginx"
+    /usr/sbin/nginx -c /config/nginx/nginx.conf -s reload
+  else
+    echo "Changes to nginx config detected but validation failed, skipping nginx reload. Please fix the configuration."
+  fi  
+done

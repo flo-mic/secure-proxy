@@ -1,9 +1,153 @@
 #!/usr/bin/with-contenv bash
 
-# Create needed folders
-mkdir -p /config/logs/letsencrypt
+# Create folders
 mkdir -p /config/letsencrypt
+mkdir -p /config/letsencrypt/current
 
-# Remove default folder and create symlink
-rm -rf /etc/letsencrypt
-ln -s /config/letsencrypt /etc/letsencrypt
+# make sure all environment variables are lower case
+DOMAIN=$(echo "${DOMAIN,,}")
+SUBDOMAINS=$(echo "${SUBDOMAINS,,}")
+OTHER_DOMAINS=$(echo "${OTHER_DOMAINS,,}")
+EMAIL=$(echo "${EMAIL,,}")
+STAGING=$(echo "${STAGING,,}")
+
+# check if DOMAIN was provided and format all parameters
+if [[ ! $DOMAIN == *.* ]]; then
+  echo "ERROR: No domain provided, can not continue with certbot! Make sure the \"DOMAIN\" parameter is provided." && \
+  sleep infinity
+fi
+
+# Read current config if available
+source /config/letsencrypt/certbot.conf
+if [[ ! -n $CERT_REVOKE_STAGING ]]; then
+    CERT_REVOKE_STAGING=$STAGING
+fi
+
+# Create temp config file to compare config
+echo "CERT_DOMAIN=${DOMAIN}
+CERT_SUBDOMAINS=${SUBDOMAINS}
+CERT_OTHER_DOMAINS=${OTHER_DOMAINS}
+CERT_EMAIL=${EMAIL}
+CERT_STAGING=${STAGING}
+CERT_REVOKE_STAGING=${CERT_REVOKE_STAGING}
+" > "/config/letsencrypt/certbot_tmp.conf"
+
+
+# Check if certbot input variables changed
+CERTBOT_STATUS="$(cmp -s /config/letsencrypt/certbot.conf /config/letsencrypt/certbot_tmp.conf; echo $?)"
+if [[ $CERTBOT_STATUS -ne 0 ]]; then 
+    echo "**** Certbot config has changed, prepare new certificate ****"
+    # Update certbot configuration
+    mv -f /config/letsencrypt/certbot_tmp.conf  /config/letsencrypt/certbot.conf
+    # Remove existing certs from live, archive and renewal folder
+    rm -Rf /config/letsencrypt/live/$CERT_DOMAIN/
+    rm -Rf /config/letsencrypt/archive/*
+    rm -f /config/letsencrypt/renewal/*
+    rm -f /config/letsencrypt/csr/*
+    rm -f /config/letsencrypt/keys/*
+else
+    rm /config/letsencrypt/certbot_tmp.conf
+fi
+
+# Check if live folder contains certificate folder
+if [[ -f "/config/letsencrypt/live/${DOMAIN}/cert.pem" ]]; then 
+    CERTIFICATE_EXISTS=true
+else
+    CERTIFICATE_EXISTS=false
+fi
+
+# If certificate does not exists or a new config is available perform renew
+if [[ $CERTBOT_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
+    
+    echo "**** Requesting new certificate from LetsEncrypt ****"
+    
+    echo "Domain: ${DOMAIN}"
+    REQUEST_DOMAINS="-d ${DOMAIN}"
+    
+    # Add subdomains to request string
+    if [ -n "$SUBDOMAINS" ]; then
+        SUBDOMAINS="${SUBDOMAINS// /,}"
+        SUBDOMAINS="${SUBDOMAINS//,,/,}"
+        for i in $(echo $SUBDOMAINS | sed "s/,/ /g")
+        do
+            echo "Subdomain: ${i}.${DOMAIN}"
+            REQUEST_DOMAINS="${REQUEST_DOMAINS} -d ${i}.${DOMAIN}"
+        done
+    fi
+
+     # Add other domains to request string
+    if [ -n "$OTHER_DOMAINS" ]; then
+        OTHER_DOMAINS="${OTHER_DOMAINS// /,}"
+        OTHER_DOMAINS="${OTHER_DOMAINS//,,/,}"
+        for i in $(echo $OTHER_DOMAINS | sed "s/,/ /g")
+        do
+            echo "Other domain: ${i}"
+            REQUEST_DOMAINS="${REQUEST_DOMAINS} -d ${i}"
+        done
+    fi
+
+    # check and validate email
+    if [[ $EMAIL == *@*.* ]]; then
+        echo "E-mail: ${EMAIL}"
+        REQUEST_EMAIL="--email ${EMAIL} --no-eff-email"
+    else
+        echo "No e-mail address provided or address is invalid!"
+        REQUEST_EMAIL="--register-unsafely-without-email"
+    fi
+
+    REQUEST_PARAMETERS="--renew-by-default --nginx --non-interactive --preferred-challenges http --rsa-key-size 4096 --agree-tos"
+    
+    # Request certificate
+    shopt -s nocasematch
+    if [[ ${STAGING} = "true" ]]; then
+        echo "Staging: true"
+        REQUEST_PARAMETERS="${REQUEST_PARAMETERS} --staging"
+    else
+        echo "Staging: false"
+    fi
+    
+    # Request certificate by certbot
+    certbot certonly $REQUEST_PARAMETERS $REQUEST_EMAIL  $REQUEST_DOMAINS
+
+    # Check that certificate was created succesfully
+    if [[ -f "/config/letsencrypt/live/${DOMAIN}/cert.pem" ]]; then 
+        #Update current certificate
+        cd "/config/letsencrypt/live/${DOMAIN}/"
+        openssl pkcs12 -export -out privkey.pfx -inkey privkey.pem -in cert.pem -certfile chain.pem -passout pass:
+        sleep 1
+        cat {privkey,fullchain}.pem > priv-fullchain-bundle.pem
+
+        # Revoke and remove old certificate
+        if [[ -f /config/letsencrypt/current/cert.pem ]]; then
+            shopt -s nocasematch
+            if [[ ${CERT_REVOKE_STAGING} = "true" ]]; then
+                certbot revoke --non-interactive --cert-path /config/etc/letsencrypt/current/fullchain.pem --staging
+            else
+                certbot revoke --non-interactive --cert-path /config/etc/letsencrypt/current/fullchain.pem
+            fi
+        fi
+        # Update revoke staging var in conf file
+        sed -i "s/CERT_REVOKE_STAGING=${CERT_REVOKE_STAGING}/CERT_REVOKE_STAGING=${STAGING}/" /config/letsencrypt/certbot.conf
+        
+        # Copy new files to current cert directory
+        rm -f /config/letsencrypt/current/*
+        cp /config/letsencrypt/live/$DOMAIN/* /config/letsencrypt/current/
+
+    else
+        if [[ -f "/config/letsencrypt/current/cert.pem" ]]; then 
+            echo "ERROR: Certbot failed, use old certificate until this is fixed. Please check your input parameters to get a new certificate."
+        else
+            echo "ERROR: Certbot failed and no existing certificate available. Fix the issue by checking the parameters, port and firewall settings. Restart the container"
+            sleep infinity
+        fi
+    fi
+else
+# Check if current certificate needs to be renewed
+    if openssl x509 -in /config/letsencrypt/current/fullchain.pem -noout -checkend 86400 >/dev/null; then 
+        echo "" > /dev/null 
+    else
+        echo "**** Certbot will renew the certificate now, this can take some minutes ****"
+        /etc/scripts.d/renew-letsencrypt.sh
+        sleep 1
+    fi
+fi

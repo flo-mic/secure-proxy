@@ -1,0 +1,36 @@
+#!/usr/bin/with-contenv bash
+
+# Copy template files if not exist
+for i in $(find /default -type f)
+do
+    CONFIG_PATH="$(echo $i | sed -e "s/^\/default/\/config/")"
+    CONFIG_DIR="$(echo "$(dirname "${CONFIG_PATH}")")"
+
+	# Create directory if not exists
+	mkdir -p $CONFIG_DIR
+
+	# Copy file if not exists
+	if [[ ! -f $CONFIG_PATH ]]; then
+		cp $i $CONFIG_PATH
+	fi
+done
+
+sleep 1
+
+# Check for configuration updates
+for i in $(find /default/ -type f)
+do
+    CONFIG_PATH="$(echo $i | sed -e "s/^\/default/\/config/")"
+    FILE_EQUAL="$(cmp -s ${CONFIG_PATH} ${i}; echo $?)"
+    if [[ $FILE_EQUAL -ne 0 ]]; then 
+        confs_changed="${CONFIG_PATH}\n${confs_changed}"
+    fi
+done
+
+# Inform about available updates
+if [ -n "$confs_changed" ]; then
+    echo "**** Update in default configurations detected ****"
+    echo "**** Remove the following files to get updates ****"
+    echo "**** Save your custom settings before deletion ****"
+    echo -e "${confs_changed}"
+fi

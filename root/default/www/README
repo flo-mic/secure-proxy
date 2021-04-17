@@ -1,0 +1,8 @@
+
+This directory includes default web pages which are included in the default page of nginx.
+
+You can replace this files if you want other default pages on your web server.
+Please do not remove this pages if you are using the default web page inisde the nginx folder.
+
+If you add additional pages here, they will be available on the default web page.
+For custom web pages you will probably need to include them.
