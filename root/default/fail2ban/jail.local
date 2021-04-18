@@ -1,9 +1,13 @@
 # fail2ban jail configuration
 # All changes on this file or on any other fail2ban files require a restart of the container
 
+#
+# Global settings
+#
+
 [DEFAULT]
 
-# Changes the default ban action from "iptables-multiport", which causes issues on some platforms, to "iptables-allports".
+# Use "iptables-allports" to avoid any issues on special platforms.
 banaction = iptables-allports
 
 # "bantime" is the number of seconds that a host is banned.
@@ -17,7 +21,7 @@ maxretry = 5
 
 # "ignoreip" can be a list of IP addresses, CIDR masks or DNS hosts. Fail2ban
 # will not ban a host which matches an address in this list. Several addresses
-#ignoreip = 127.0.0.1/8 ::1
+ignoreip = 127.0.0.1/8 ::1
 
 
 #
@@ -49,8 +53,33 @@ port     = http,https
 filter   = nginx-botsearch
 logpath  = /config/logs/nginx/access.log
 
+
 [nginx-deny]
 enabled  = true
 port     = http,https
 filter   = nginx-deny
 logpath  = /config/logs/nginx/error.log
+
+
+[nginx-nohome]
+enabled  = true
+port     = http,https
+filter   = nginx-nohome
+logpath  = /config/logs/nginx/access.log
+maxretry = 2
+
+
+[nginx-noproxy]
+enabled  = true
+port     = http,https
+filter   = nginx-noproxy
+logpath  = /config/logs/nginx/access.log
+maxretry = 2
+
+
+[nginx-noscript]
+enabled  = true
+port     = http,https
+filter   = nginx-noscript
+logpath  = /config/logs/nginx/access.log
+maxretry = 2

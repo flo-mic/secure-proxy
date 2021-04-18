@@ -1,16 +1,16 @@
-/config/logs/nginx/*.log {
-    
+/config/log/fail2ban/fail2ban.log {
+
     # rotate log files daily, weekly...
     weekly
 
     # keep X retentions versions
-    rotate 4
+    rotate 8
     
     # uncomment this if you want your log files compressed
-    #compress
+    compress
 
     # Postpone compression of the previous log file to the next rotation cycle
-    #delaycompress
+    delaycompress
 
     # create new (empty) log files after rotating old ones
     #create
@@ -22,14 +22,15 @@
     nodateext
        
     # Do not rotate the log if it is empty
-    notifempty
+    #notifempty
 
     # If sharedscript is specified, the scripts are only run once, no matter how many logs match the wildcarded pattern
-    sharedscripts
+    #sharedscripts
 
     # Content to execute after script execution
-    #postrotate
-    #endscript
+    postrotate
+        /usr/bin/fail2ban-client flushlogs 1>/dev/null || true
+    endscript
 
     su swag swag
 }

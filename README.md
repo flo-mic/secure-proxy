@@ -1,7 +1,10 @@
 # This project is still work in progress
 
+
 # swag
-Secure web application gateway based on nginx with integrated web application firewall, LetsEncrypt, fail2ban and a lot more :wink It is designed as a pure reverse proxy which faces to the public internet. Of course you can also use this internally but you will not be able to use LetsEncrypt then as this requires a http challenge at the moment. The SWAG is designed to secure your application and the data you host on them. It comes with serval well known open source security features like fail2ban ip blocking etc.
+
+Secure web application gateway based on nginx with integrated web application firewall, LetsEncrypt, fail2ban and a lot more :wink It is designed as a pure reverse proxy which faces to the public internet. It can also server static files which you lace inside the foler `/config/www`. Of course you can also use this internally but you will not be able to use LetsEncrypt as this requires a http challenge at the moment. The SWAG is designed to secure your application and the data you host on them. It comes with serval well known open source security features like fail2ban ip blocking etc.
+
 
 # Integrated features
 
@@ -9,24 +12,26 @@ Secure web application gateway based on nginx with integrated web application fi
 - Docker dns resolving
 - Nginx runs without privileged root permissions
 - Prevent bruteforce attacks
+- Block bad bots, script bots and a lot more
+- Blocks known TOR adresses
 - Clean image with auto logrotate
-- HTTP security headers
+- HTTP security headers to prevent sniffing, crawler, embedding in other pages and much more
 - TLS hardening for modern security
 - Nginx leak prevention
 - Improved pervormance with brotli and server tweakings
 - Automatic update of all blocking, and CRS lists
+- Custom error messages, also for bots to hide that we are running on a nginx
+
 
 # Features in pipeline
 
 - Modern web application firewall with ModSecurity and OWASP Core Rule Set
-- Improve fail2ban behavior or maybe switch to the modern CrowdSec as an modern alternative
 - geoip blocking functionality
-- adapt fail2ban to run without net-admin or similar permissions to isolate it from the host
 - Anti DDOS enabled
-- Blocks bad bots, user agents, spam referrer and bad ips
-- Block known TOR proxies
+- Blocks bad bots, user agents, spam referrer, robots and bad ips
 - Block requests by country
 - Integrated av scanner "CalmAV" for file uploads
+
 
 # Documentation
 
@@ -82,9 +87,13 @@ volumes:
      external: false
 ```
 
+
 # Other great projects
 
 - Bunkerized nginx https://github.com/bunkerity/bunkerized-nginx
 - Ultimate bad bot blocker https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker
 - Linuxserver SWAG https://github.com/linuxserver/docker-swag
+- Nikto web server scanner https://github.com/sullo/nikto
+- Nginx-errors https://github.com/bartosjiri/nginx-errors
+
 

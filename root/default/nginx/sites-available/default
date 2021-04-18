@@ -1,0 +1,26 @@
+
+# redirect traffic to https
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+	server_name _;
+
+	return 301 https://$host$request_uri;
+}
+
+# Default SSL server
+server {
+    listen 443 ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
+
+	root /config/www;
+	index index.html;
+
+	# include site related configurations like ssl, error pages, robots deny list etc
+	include /config/nginx/sites-conf.d/*.conf;
+
+	# Default location in case no location is specified
+	location / {
+		try_files $uri $uri/ /index.html =404;
+	}
+}

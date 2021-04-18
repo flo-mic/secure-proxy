@@ -1,8 +1,10 @@
 #!/usr/bin/with-contenv bash
 
+# Check for custom user group id
 PUID=${PUID:-911}
 PGID=${PGID:-911}
 
+# Update user and group id of swag user
 groupmod -o -g "$PGID" swag >/dev/null
 usermod -o -u "$PUID" swag >/dev/null
 
@@ -21,5 +23,23 @@ User gid:    $(id -g swag)
 -------------------------------------
 "
 
+# Set permission for swag user
 chown swag:swag /config
 chown swag:swag /default
+
+
+# Copy template files if not exist
+for i in $(find /default -type f)
+do
+    CONFIG_PATH="$(echo $i | sed -e "s/^\/default/\/config/")"
+    CONFIG_DIR="$(echo "$(dirname "${CONFIG_PATH}")")"
+
+	# Create directory if not exists
+	mkdir -p $CONFIG_DIR
+
+	# Copy file if not exists
+	if [[ ! -f $CONFIG_PATH ]]; then
+		cp $i $CONFIG_PATH
+	fi
+done
+sleep 1

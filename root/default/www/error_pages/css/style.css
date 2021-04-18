@@ -1,6 +1,5 @@
-<style>
-  /* CSS reset */
-  html, body, h1, h2, h3, h4, h5, h6, p, menu {
+/* CSS reset */
+html, body, h1, h2, h3, h4, h5, h6, p, menu {
   margin: 0;
   padding: 0;
   border: 0;
@@ -52,7 +51,7 @@ main {
   text-align: center;
 }
 
-main .main_code {
+main .main_error-code {
   font-size: calc(4.86188vw + 65.76796px);
   line-height: 1;
   text-transform: uppercase;
@@ -60,18 +59,18 @@ main .main_code {
 }
 
 @media screen and (max-width: 374px) {
-  main .main_code {
+  main .main_error-code {
     font-size: 84px;
   }
 }
 
 @media screen and (min-width: 1281px) {
-  main .main_code {
+  main .main_error-code {
     font-size: 128px;
   }
 }
 
-main .main_title {
+main .main_error-title {
   font-size: calc(0.88398vw + 18.68508px);
   text-transform: capitalize;
   color: #191919;
@@ -79,77 +78,91 @@ main .main_title {
 }
 
 @media screen and (max-width: 374px) {
-  main .main_title {
+  main .main_error-title {
     font-size: 22px;
   }
 }
 
 @media screen and (min-width: 1281px) {
-  main .main_title {
+  main .main_error-title {
     font-size: 30px;
   }
 }
 
 @media screen and (max-width: 374px) {
-  main .main_title {
+  main .main_error-title {
     margin-bottom: 20px;
   }
 }
 
 @media screen and (min-width: 1281px) {
-  main .main_title {
+  main .main_error-title {
     margin-bottom: 24px;
   }
 }
 
-main .main_message {
+main .main_error-message {
   font-size: calc(0.44199vw + 14.34254px);
   color: #191919;
 }
 
 @media screen and (max-width: 374px) {
-  main .main_message {
+  main .main_error-message {
     font-size: 16px;
   }
 }
 
 @media screen and (min-width: 1281px) {
-  main .main_message {
+  main .main_error-message {
     font-size: 20px;
   }
 }
 
-main .main_message:last-of-type {
+main .main_error-message:last-of-type {
   margin-bottom: calc(0.44199vw + 18.34254px);
 }
 
 @media screen and (max-width: 374px) {
-  main .main_message:last-of-type {
+  main .main_error-message:last-of-type {
     margin-bottom: 20px;
   }
 }
 
 @media screen and (min-width: 1281px) {
-  main .main_message:last-of-type {
+  main .main_error-message:last-of-type {
     margin-bottom: 24px;
   }
 }
-</style>
-<html>
-<head>
-  <title>Welcome to SWAG</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1"> 
-</head>
-<body>
-  <main>
-    <h2 class="main_code">SWAG</h2>
-    <h1 class="main_title">Secure Web Application Gateway</h1>
-    <p class="main_message">This image is designed for security!</p>
-    <p class="main_message">It is used as reverse proxy and can handle static websites.</p>
-    <br>
-    <p class="main_message">Integrated Lets Encrypt, Web Application Firewall, fail2ban and a lot more.</p>
-    <p class="main_message">Bots, Crawlers, Attackers and Spam waves have no chance.</p>
-  </main>
-</body>
-</html>
+
+main .main_error-link {
+  display: inline-block;
+  font-size: calc(0.22099vw + 13.17127px);
+  font-weight: 700;
+  text-transform: capitalize;
+  text-decoration: none;
+  background: #191919;
+  color: #ffffff;
+  padding: 10px 25px;
+  border: 2px solid #191919;
+  border-radius: 0;
+  -webkit-transition: background .3s ease, color .3s ease;
+  transition: background .3s ease, color .3s ease;
+}
+
+@media screen and (max-width: 374px) {
+  main .main_error-link {
+    font-size: 14px;
+  }
+}
+
+@media screen and (min-width: 1281px) {
+  main .main_error-link {
+    font-size: 16px;
+  }
+}
+
+main .main_error-link:hover {
+  background: #ffffff;
+  color: #191919;
+}
+/*# sourceMappingURL=style.css.map */

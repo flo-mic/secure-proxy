@@ -4,6 +4,10 @@
 mkdir -p /config/letsencrypt
 mkdir -p /config/letsencrypt/current
 
+# Create symlink for letsencrypt
+rm -rf /etc/letsencrypt
+ln -s /config/letsencrypt /etc/letsencrypt
+
 # make sure all environment variables are lower case
 DOMAIN=$(echo "${DOMAIN,,}")
 SUBDOMAINS=$(echo "${SUBDOMAINS,,}")
@@ -95,7 +99,8 @@ if [[ $CERTBOT_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
         REQUEST_EMAIL="--register-unsafely-without-email"
     fi
 
-    REQUEST_PARAMETERS="--renew-by-default --nginx --non-interactive --preferred-challenges http --rsa-key-size 4096 --agree-tos"
+    REQUEST_PARAMETERS="--renew-by-default --nginx --nginx-server-root /config/nginx --non-interactive --preferred-challenges http \
+        --logs-dir /config/logs/letsencrypt --rsa-key-size 4096 --agree-tos"
     
     # Request certificate
     shopt -s nocasematch
@@ -106,8 +111,25 @@ if [[ $CERTBOT_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
         echo "Staging: false"
     fi
     
+    # Start nginx for letsencrypt
+    echo "**** Starting temporary nginx instance for certbot ****"
+    nohup ./etc/services.d/nginx/run &
+    sleep 1
+
     # Request certificate by certbot
     certbot certonly $REQUEST_PARAMETERS $REQUEST_EMAIL  $REQUEST_DOMAINS
+
+    # Kill nginx to avoid issues with s6 service
+    echo "**** Stopping temporary nginx instance ****"
+    if pgrep -f "[n]ginx:" > /dev/null; then
+        pkill -f [n]ginx:
+        sleep 1
+    fi
+    if pgrep -f "[n]ginx:" > /dev/null; then
+        echo "Nginx  still active, sending SIGKILL"
+        pkill -9 -f [n]ginx:
+        sleep 1
+    fi
 
     # Check that certificate was created succesfully
     if [[ -f "/config/letsencrypt/live/${DOMAIN}/cert.pem" ]]; then 
@@ -121,9 +143,9 @@ if [[ $CERTBOT_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
         if [[ -f /config/letsencrypt/current/cert.pem ]]; then
             shopt -s nocasematch
             if [[ ${CERT_REVOKE_STAGING} = "true" ]]; then
-                certbot revoke --non-interactive --cert-path /config/etc/letsencrypt/current/fullchain.pem --staging
+                certbot revoke --non-interactive --cert-path /config/letsencrypt/current/fullchain.pem --staging
             else
-                certbot revoke --non-interactive --cert-path /config/etc/letsencrypt/current/fullchain.pem
+                certbot revoke --non-interactive --cert-path /config/letsencrypt/current/fullchain.pem
             fi
         fi
         # Update revoke staging var in conf file
@@ -147,6 +169,7 @@ else
         echo "" > /dev/null 
     else
         echo "**** Certbot will renew the certificate now, this can take some minutes ****"
+        chmod +x /etc/scripts.d/renew-letsencrypt.sh
         /etc/scripts.d/renew-letsencrypt.sh
         sleep 1
     fi

@@ -34,6 +34,8 @@ rm /etc/fail2ban/jail.d/alpine-ssh.conf
 mkdir -p /default/fail2ban
 mv /etc/fail2ban/action.d /default/fail2ban/
 mv /etc/fail2ban/filter.d /default/fail2ban/
+# Replace default iptable action to "REJECT" instead of "REJECT --reject-with icmp-port-unreachable" as this might cause errors on old iptable versions
+sed -i 's/^blocktype = .*$/blocktype = REJECT/g' /default/fail2ban/action.d/iptables-common.conf
 
 # Apply custom cron config
 echo "**** import custom crontabs ****"
@@ -45,9 +47,10 @@ echo "**** clean build files ****"
 apk del --purge \
 	build-dependencies
 rm -rf \
-    /tmp/* \
     /root/.cache \
-    /root/.cargo
+    /root/.cargo \
+    /tmp/* \
+    /var/cache/apk/* 
 for myfile in *.pyc *.pyo; do \
  	find /usr/lib/python3.*  -iname "${myfile}" -exec rm -f '{}' + \
 ; done

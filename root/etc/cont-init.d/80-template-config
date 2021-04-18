@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bash
 
-# Copy template files if not exist
+# Copy template files again if not exists to cache also updated files from init scripts
 for i in $(find /default -type f)
 do
     CONFIG_PATH="$(echo $i | sed -e "s/^\/default/\/config/")"
@@ -14,10 +14,9 @@ do
 		cp $i $CONFIG_PATH
 	fi
 done
-
 sleep 1
 
-# Check for configuration updates
+# Check for configuration updates that need to be performed from the user manually to prevent any breaking changes
 for i in $(find /default/ -type f)
 do
     CONFIG_PATH="$(echo $i | sed -e "s/^\/default/\/config/")"

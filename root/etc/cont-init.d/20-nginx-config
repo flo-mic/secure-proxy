@@ -4,7 +4,7 @@
 mkdir -p /config/logs/nginx
 
 # Download dhparam key from https://2ton.com.au/dhtool/
-if [ ! -f "/config/nginx/dhparam4096.pem" ]; then
+if [[ ! -f "/config/nginx/dhparam4096.pem" ]] || ! grep -q 'PARAMETERS' "/config/nginx/dhparam4096.pem"; then
     echo "**** downloading fresh generated 4096 dhparam key ****"
     echo "**** this process can not guarantee a unique key ****"
     echo "**** for more security create a your own dhparam ****"
@@ -12,8 +12,12 @@ if [ ! -f "/config/nginx/dhparam4096.pem" ]; then
 	sleep 1
 fi
 if ! grep -q 'PARAMETERS' "/config/nginx/dhparam4096.pem"; then
-  echo "Generating dhparams.pem. This will take a long time. Do not stop the container until this process is completed."
-  openssl dhparam -out /config/nginx/dhparam4096.pem 4096
+  # Check again for dhparam to avoid long running generation
+  sleep 1
+  if ! grep -q 'PARAMETERS' "/config/nginx/dhparam4096.pem"; then
+    echo "Generating dhparams.pem. This will take a long time. Do not stop the container until this process is completed."
+    openssl dhparam -out /config/nginx/dhparam4096.pem 4096
+  fi
 fi
 
 # Generate nginx log files
@@ -23,3 +27,9 @@ fi
 if [[ ! -f /config/logs/nginx/access.log ]]; then
 	touch /config/logs/nginx/access.log
 fi
+
+# Download/update CSR, bad bot, blocking and serval other lists
+echo "**** Refreshing CRS, bad bot, blocking lists, etc... ****"
+chmod +x /etc/scripts.d/refresh-agent.sh
+/etc/scripts.d/refresh-agent.sh
+sleep 1

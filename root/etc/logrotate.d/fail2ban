@@ -1,4 +1,4 @@
-/config/log/fail2ban/fail2ban.log {
+/config/log/refresh-agent/*.log {
 
     # rotate log files daily, weekly...
     weekly
