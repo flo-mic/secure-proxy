@@ -1,10 +1,10 @@
-/config/log/fail2ban/fail2ban.log {
+/config/log/nginx-watcher/nginx-watcher.log {
 
     # rotate log files daily, weekly...
     weekly
 
     # keep X retentions versions
-    rotate 8
+    rotate 4
     
     # uncomment this if you want your log files compressed
     compress

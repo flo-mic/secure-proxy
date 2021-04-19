@@ -16,13 +16,19 @@ do
 done
 sleep 1
 
+# Global ignore list for template updates as they might be updated from an refresh script on regular basis anyway
+TEMPLATE_IGNORE_ARRAY={"/default/nginx/conf.d/globalblacklist.conf"}
+
 # Check for configuration updates that need to be performed from the user manually to prevent any breaking changes
 for i in $(find /default/ -type f)
-do
-    CONFIG_PATH="$(echo $i | sed -e "s/^\/default/\/config/")"
-    FILE_EQUAL="$(cmp -s ${CONFIG_PATH} ${i}; echo $?)"
-    if [[ $FILE_EQUAL -ne 0 ]]; then 
-        confs_changed="${CONFIG_PATH}\n${confs_changed}"
+do  
+    #Only compare files when they are not in the ignore list
+    if [[ ! "${TEMPLATE_IGNORE_ARRAY[@]}" =~ "${i}" ]]; then
+        CONFIG_PATH="$(echo $i | sed -e "s/^\/default/\/config/")"
+        FILE_EQUAL="$(cmp -s ${CONFIG_PATH} ${i}; echo $?)"
+        if [[ $FILE_EQUAL -ne 0 ]]; then 
+            confs_changed="${CONFIG_PATH}\n${confs_changed}"
+        fi
     fi
 done
 

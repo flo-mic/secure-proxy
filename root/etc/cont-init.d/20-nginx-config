@@ -29,7 +29,6 @@ if [[ ! -f /config/logs/nginx/access.log ]]; then
 fi
 
 # Download/update CSR, bad bot, blocking and serval other lists
-echo "**** Refreshing CRS, bad bot, blocking lists, etc... ****"
 chmod +x /etc/scripts.d/refresh-agent.sh
 /etc/scripts.d/refresh-agent.sh
 sleep 1

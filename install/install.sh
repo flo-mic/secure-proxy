@@ -12,7 +12,9 @@ apk add --no-cache --virtual=build-dependencies \
     g++ \
     gcc \
     libffi-dev \
-	tar
+	tar \
+    wget
+
 
 # Install runtime packages
 echo "**** install runtime packages ****"
@@ -29,18 +31,27 @@ apk add --no-cache --upgrade \
     nginx-mod-http-brotli \
     openssl
 
+
+# Prepare fail2ban and move to default as template
 echo "**** copy fail2ban config ****"
 rm /etc/fail2ban/jail.d/alpine-ssh.conf
 mkdir -p /default/fail2ban
 mv /etc/fail2ban/action.d /default/fail2ban/
 mv /etc/fail2ban/filter.d /default/fail2ban/
-# Replace default iptable action to "REJECT" instead of "REJECT --reject-with icmp-port-unreachable" as this might cause errors on old iptable versions
+# Replace default iptable action to "REJECT" instead of "REJECT --reject-with icmp-port-unreachable" as this cause errors on old iptable versions
 sed -i 's/^blocktype = .*$/blocktype = REJECT/g' /default/fail2ban/action.d/iptables-common.conf
+
+
+# Install ultimate-bad-bot-blocker
+chmod +x /tmp/install-ultimate-bad-bot-blocker.sh
+./tmp/install-ultimate-bad-bot-blocker.sh
+
 
 # Apply custom cron config
 echo "**** import custom crontabs ****"
 mkdir -p /etc/crontabs
 crontab -u root /tmp/etc/crontabs/root
+
 
 # Cleanup before deploying
 echo "**** clean build files ****"

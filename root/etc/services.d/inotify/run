@@ -1,18 +1,18 @@
 #!/usr/bin/with-contenv bash
 
-# Listens for file changes on nginx config files
-function wait_for_changes {
-  inotifywait -rq \
-    --event modify,move,create,delete \
-    /config/nginx
-}
+# Create log directory
+mkdir -p /config/logs/nginx-watcher
+LOG_FILE=/config/logs/nginx-watcher/nginx-watcher.log
 
-# Loop for filechanges and automatic nginx reload in case of changes
-while wait_for_changes; do
-  if /usr/sbin/nginx -c /config/nginx/nginx.conf -t; then
-    echo "Changes to nginx config detected and validated, reloading nginx"
-    /usr/sbin/nginx -c /config/nginx/nginx.conf -s reload
-  else
-    echo "Changes to nginx config detected but validation failed, skipping nginx reload. Please fix the configuration."
-  fi  
-done
+# Listens for file changes on nginx config files
+inotifywait -rq --event modify,move,create,delete /config/nginx |
+  while read -r path action file; do
+    if [[ "$file" =~ .*conf$ ]] || [[ "$file" =~ .*pem$ ]] || [[ "$path" =~ .*/sites-available/$ ]]; then
+      if /usr/sbin/nginx -c /config/nginx/nginx.conf -t 2>&1 | tee -a $LOG_FILE; then
+        echo "$(date "+%F %T") Changes to nginx config detected and validated, reloading nginx" | tee -a $LOG_FILE
+        /usr/sbin/nginx -c /config/nginx/nginx.conf -s reload 2>&1 | tee -a $LOG_FILE
+      else
+        echo "$(date "+%F %T") Changes to nginx config detected but validation failed, skipping nginx reload. Please fix the configuration." | tee -a $LOG_FILE
+      fi  
+    fi
+  done

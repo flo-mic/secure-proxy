@@ -1,5 +1,5 @@
 
-This directory includes the nginx configuration
+This directory includes the nginx configuration.
 
 All changes on files in this folder will get active immediately. 
 There is a file watcher (inotify) which will allow nginx to perform a hot reload if your changes are valid.

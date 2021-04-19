@@ -11,26 +11,27 @@ Secure web application gateway based on nginx with integrated web application fi
 - Letsencrypt support
 - Docker dns resolving
 - Nginx runs without privileged root permissions
-- Prevent bruteforce attacks
-- Block bad bots, script bots and a lot more
+- Anti DDOS enabled with nginx rate limits
+- Prevents bruteforce attacks
+- Blocks bad bots, user agents, spam referrer, adware, robots and known bad ips addresses
+- Blocks maleware, ransomeware, click-jacking and click-redirects
 - Blocks known TOR adresses
-- Clean image with auto logrotate
+- Automatic update of all blocking, and CRS lists
 - HTTP security headers to prevent sniffing, crawler, embedding in other pages and much more
 - TLS hardening for modern security
 - Nginx leak prevention
 - Improved pervormance with brotli and server tweakings
-- Automatic update of all blocking, and CRS lists
+- Clean image with auto logrotate
 - Custom error messages, also for bots to hide that we are running on a nginx
 
+I need to mention that a lot of the listed security features are part of the "[Ultimate Bad Bot Blocker](https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker)" from [mitchellkrogza](https://github.com/mitchellkrogza). So many thanks to this great project which is great project and really well maintained!
 
 # Features in pipeline
 
 - Modern web application firewall with ModSecurity and OWASP Core Rule Set
-- geoip blocking functionality
-- Anti DDOS enabled
-- Blocks bad bots, user agents, spam referrer, robots and bad ips
-- Block requests by country
+- GeoIP blocking
 - Integrated av scanner "CalmAV" for file uploads
+- Integrate modern authentication for applications which do not have any authentication in place.
 
 
 # Documentation
