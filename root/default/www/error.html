@@ -1,0 +1,192 @@
+<style>
+    /* CSS reset */
+    html, body, h1, h2, h3, h4, h5, h6, p, menu {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+    }
+    
+    body {
+        line-height: 1;
+    }
+    
+    /* Style */
+    html, body {
+        font-family: "Montserrat", sans-serif;
+        font-size: 16px;
+        line-height: 1.4;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+    
+    body {
+        height: 100%;
+        background: #ffffff;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    
+    main {
+        height: calc(100% - 50px);
+        padding: 25px;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        text-align: center;
+    }
+    
+    main .main_code {
+        font-size: calc(4.86188vw + 65.76796px);
+        line-height: 1;
+        text-transform: uppercase;
+        color: #191919;
+    }
+    
+    @media screen and (max-width: 374px) {
+        main .main_code {
+        font-size: 84px;
+        }
+    }
+    
+    @media screen and (min-width: 1281px) {
+        main .main_code {
+        font-size: 128px;
+        }
+    }
+    
+    main .main_title {
+        font-size: calc(0.88398vw + 18.68508px);
+        text-transform: capitalize;
+        color: #191919;
+        margin-bottom: calc(0.44199vw + 18.34254px);
+    }
+    
+    @media screen and (max-width: 374px) {
+        main .main_title {
+        font-size: 22px;
+        }
+    }
+    
+    @media screen and (min-width: 1281px) {
+        main .main_title {
+        font-size: 30px;
+        }
+    }
+    
+    @media screen and (max-width: 374px) {
+        main .main_title {
+        margin-bottom: 20px;
+        }
+    }
+    
+    @media screen and (min-width: 1281px) {
+        main .main_title {
+        margin-bottom: 24px;
+        }
+    }
+    
+    main .main_message {
+        font-size: calc(0.44199vw + 14.34254px);
+        color: #191919;
+    }
+    
+    @media screen and (max-width: 374px) {
+        main .main_message {
+        font-size: 16px;
+        }
+    }
+    
+    @media screen and (min-width: 1281px) {
+        main .main_message {
+        font-size: 20px;
+        }
+    }
+    
+    main .main_message:last-of-type {
+        margin-bottom: calc(0.44199vw + 18.34254px);
+    }
+    
+    @media screen and (max-width: 374px) {
+        main .main_message:last-of-type {
+        margin-bottom: 20px;
+        }
+    }
+    
+    @media screen and (min-width: 1281px) {
+        main .main_message:last-of-type {
+        margin-bottom: 24px;
+        }
+    }
+
+    main .main_link {
+        display: inline-block;
+        font-size: calc(0.22099vw + 13.17127px);
+        font-weight: 700;
+        text-transform: capitalize;
+        text-decoration: none;
+        background: #191919;
+        color: #ffffff;
+        padding: 10px 25px;
+        border: 2px solid #191919;
+        border-radius: 0;
+        -webkit-transition: background .3s ease, color .3s ease;
+        transition: background .3s ease, color .3s ease;
+    }
+
+    @media screen and (max-width: 374px) {
+        main .main_link {
+            font-size: 14px;
+        }
+    }
+
+    @media screen and (min-width: 1281px) {
+        main .main_link {
+            font-size: 16px;
+        }
+    }
+
+    main .main_link:hover {
+        background: #ffffff;
+        color: #191919;
+    }
+  </style>
+  <html>
+  <head>
+    <title><!--# echo var="status" default="Error" --></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1"> 
+    <!--# if expr="$status = 502" -->
+      <meta http-equiv="refresh" content="2">
+    <!--# endif -->
+  </head>
+  <body>
+    <main>
+      <!--# if expr="$status = 502" -->
+        <h1 class="main_title">We are updating our website</h1>
+        <p class="main_message">This is only for a few seconds, you will be redirected.</p>
+      <!--# else -->
+        <h2 class="main_code"><!--# echo var="status" default="Error" --></h2>
+        <h1 class="main_title"><!--# echo var="status_text" default="Something goes wrong" --></h1>
+        <p class="main_message"><!--# echo var="status_description" default="We couldn't identify the reason for this problem, please refresh the page." --></p>
+        <p class="main_message">We are sorry for the inconvenience.</p>
+        <a class="main_link" href="javascript:window.history.back();">Go back</a>
+      <!--# endif -->
+    </main>
+  </body>
+  </html>

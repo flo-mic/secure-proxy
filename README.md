@@ -22,7 +22,7 @@ Secure web application gateway based on nginx with integrated web application fi
 - Nginx leak prevention
 - Improved pervormance with brotli and server tweakings
 - Clean image with auto logrotate
-- Custom error messages, also for bots to hide that we are running on a nginx
+- Custom error page, also for bots to hide that we are running on a nginx
 
 I need to mention that a lot of the listed security features are part of the "[Ultimate Bad Bot Blocker](https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker)" from [mitchellkrogza](https://github.com/mitchellkrogza). So many thanks to this great project which is great project and really well maintained!
 

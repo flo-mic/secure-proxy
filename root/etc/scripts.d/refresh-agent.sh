@@ -33,7 +33,7 @@ chmod +x /etc/scripts.d/update-ngxblocker
     -b /default/nginx/bots.d \
     -c /default/nginx/conf.d \
     -i /etc/scripts.d/install-ngxblocker \
-    >> $LOG_FILE
+    >> $LOG_FILE 2>&1
 
 
 # Remove temporary files
