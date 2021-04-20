@@ -29,7 +29,8 @@ apk add --no-cache --upgrade \
     memcached \
     nginx \
     nginx-mod-http-brotli \
-    openssl
+    openssl \
+    tzdata
 
 
 # Prepare fail2ban and move to default as template

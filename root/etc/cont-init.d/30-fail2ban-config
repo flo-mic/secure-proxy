@@ -15,8 +15,13 @@ cp -R /config/fail2ban/filter.d /etc/fail2ban/
 cp -R /config/fail2ban/action.d /etc/fail2ban/
 cp /config/fail2ban/fail2ban.local /etc/fail2ban/fail2ban.local
 cp /config/fail2ban/jail.local /etc/fail2ban/jail.local
+cp /config/fail2ban/paths-common.local /etc/fail2ban/paths-common.local
 
 # Generate fail2ban log files
 if [[ ! -f /config/logs/fail2ban/fail2ban.log ]]; then
 	touch /config/logs/fail2ban/fail2ban.log
 fi
+
+# Init repeat offenders jail internal db file
+touch /etc/fail2ban/nginx.repeatoffender
+chmod +x /etc/fail2ban/nginx.repeatoffender

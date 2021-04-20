@@ -36,14 +36,14 @@ enabled = false
 enabled  = true
 filter   = nginx-http-auth
 port     = http,https
-logpath  = /config/logs/nginx/error.log
+logpath  = %(nginx_error_log)s
 
 
 [nginx-badbots]
 enabled  = true
 port     = http,https
 filter   = nginx-badbots
-logpath  = /config/logs/nginx/access.log
+logpath  = %(nginx_access_log)s
 maxretry = 2
 
 
@@ -51,21 +51,21 @@ maxretry = 2
 enabled  = true
 port     = http,https
 filter   = nginx-botsearch
-logpath  = /config/logs/nginx/access.log
+logpath  = %(nginx_access_log)s
 
 
 [nginx-deny]
 enabled  = true
 port     = http,https
 filter   = nginx-deny
-logpath  = /config/logs/nginx/error.log
+logpath  = %(nginx_error_log)s
 
 
 [nginx-nohome]
 enabled  = true
 port     = http,https
 filter   = nginx-nohome
-logpath  = /config/logs/nginx/access.log
+logpath  = %(nginx_access_log)s
 maxretry = 2
 
 
@@ -73,7 +73,7 @@ maxretry = 2
 enabled  = true
 port     = http,https
 filter   = nginx-noproxy
-logpath  = /config/logs/nginx/access.log
+logpath  = %(nginx_access_log)s
 maxretry = 2
 
 
@@ -81,5 +81,14 @@ maxretry = 2
 enabled  = true
 port     = http,https
 filter   = nginx-noscript
-logpath  = /config/logs/nginx/access.log
+logpath  = %(nginx_access_log)s
 maxretry = 2
+
+
+[nginx-limit-req]
+enabled = true
+filter = nginx-limit-req
+logpath = %(nginx_error_log)s
+findtime = 600
+bantime = 7200
+maxretry = 10

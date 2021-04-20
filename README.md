@@ -30,9 +30,9 @@ I need to mention that a lot of the listed security features are part of the "[U
 
 - Modern web application firewall with ModSecurity and OWASP Core Rule Set
 - GeoIP blocking
-- Integrated av scanner "CalmAV" for file uploads
-- Integrate modern authentication for applications which do not have any authentication in place.
-
+- CalmAV Virus, Trojan and maleware scanner -> Depens on ModSecurity
+- Mailing agent to be informed about attacks and blocking actions
+- Authelia 2-factor single sign on integration
 
 # Documentation
 
@@ -42,6 +42,7 @@ There is no documentation at the moment, it will come soon. If you want to use i
 - Volume: /config
 - Ports: 80, 443
 - Environment variables:
+    - TZ=Europe/Berlin            # (optional) Used to define the timezone (e.g. "Europe/Berlin")
     - PUID=                       # (optional) Custom user id if you face any permission issues
     - PGID=                       # (optional) Custom group id if you face any permission issues
     - DOMAIN=example.com          # (required) Main domain for new certificates
@@ -69,6 +70,7 @@ services:
     cap_add:
       - NET_ADMIN
     environment:
+      - TZ=Europe/Berlin
       - DOMAIN=example.com   
       - SUBDOMAINS=www dev.wiki
       - EMAIL=contact@example.com
@@ -96,5 +98,3 @@ volumes:
 - Linuxserver SWAG https://github.com/linuxserver/docker-swag
 - Nikto web server scanner https://github.com/sullo/nikto
 - Nginx-errors https://github.com/bartosjiri/nginx-errors
-
-
