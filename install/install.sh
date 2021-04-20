@@ -29,6 +29,7 @@ apk add --no-cache --upgrade \
     memcached \
     nginx \
     nginx-mod-http-brotli \
+    nginx-mod-http-headers-more \
     openssl \
     tzdata
 
