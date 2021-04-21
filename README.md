@@ -40,11 +40,12 @@ There is no documentation at the moment, it will come soon. If you want to use i
 
 ### Docker settings:
 All configuration files are stored in `/config`. Therefore it is recommended to make this file persistent and mount it with an docker volume or local path. The SWAG instance is listening on port `80` and `443`. You need to map both ports and also configure portforwarding for poth ports. There is no security issue if you open port 80 as well as there is an immerdiate redirect to port 443. Port 80 is only required for the Let's Encrypt http challenge.
-```
--p 80:80
--p 443:443
--v /local_path:config
-```
+
+#### General docker parameter
+- `-p 80:80`
+- `-p 443:443`
+- `-v /local_path:/config`
+
 #### Environment variables
 
 | Name               | Required      | Description       |
