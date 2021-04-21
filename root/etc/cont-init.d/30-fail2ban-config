@@ -25,3 +25,42 @@ fi
 # Init repeat offenders jail internal db file
 touch /etc/fail2ban/nginx.repeatoffender
 chmod +x /etc/fail2ban/nginx.repeatoffender
+
+
+# Configure mail settings if available
+if [[ -n $SMTP_SERVER ]] && [[ -n $SMTP_SENDER_MAIL ]] && [[ -n $SMTP_SENDER_NAME ]] && [[ -n $SMTP_RECEIVER ]]; then
+  echo "**** Enabling fail2ban mail notifications ****"
+  
+  ORIGINAL_MAIL_ACTION="#action = %(action_mw)s\[from=<sendermail>, password=<secretpassword>, destination=<destinationmail>, sendername=<sendername>, smtpserver=<smtpserver>\]"
+  MAIL_ACTION="action = %(action_mw)s\[from=${SMTP_SENDER_MAIL}, password=<smtppassword>, destination=${SMTP_RECEIVER}, sendername=${SMTP_SENDER_NAME}, smtpserver=${SMTP_SERVER}\]"
+
+  # Check if smtp was configured with password file
+  if [[ -n $SMTP_PASSWORD_FILE ]]; then
+	if [ -s "$SMTP_PASSWORD_FILE" ]; then
+		$SMTP_PASSWORD="$(head -n 1 $SMTP_PASSWORD_FILE)"		
+	else
+		echo "ERROR: SMTP password file does not exist or is empty. Can not enable fail2ban mail notifications. Please check your smtp server variables"
+	fi;
+  fi
+
+  # Check if smtp password is available	
+  if [[ -n $SMTP_PASSWORD ]]; then
+	
+	# Duplicate (%) as sendmail will interpret this as command if there is a single (%)
+	SMTP_PASSWORD=$(sed -e "s/%/%%/g" <<< $SMTP_PASSWORD)
+	
+	# Add password to mail action
+	MAIL_ACTION=$(sed -e "s/<smtppassword>/$SMTP_PASSWORD/g" <<< $MAIL_ACTION)
+
+	# Write smtp config to config file
+	sed -i "s/${ORIGINAL_MAIL_ACTION}/${MAIL_ACTION}/" /etc/fail2ban/jail.local
+	sed -i "s/#sender = root@localhost/sender = ${SMTP_SENDER_MAIL}/" /etc/fail2ban/jail.local
+	sed -i "s/#destemail = root@localhost/destemail = ${SMTP_RECEIVER}/" /etc/fail2ban/jail.local
+  else
+	echo "ERROR: SMTP Server details choosen but no password available. Can not enable fail2ban mail notifications. Please check your smtp server variables."
+  fi
+fi
+
+# Clear SMTP_PASSWORD from variables
+SMTP_PASSWORD=""
+MAIL_ACTION=""

@@ -16,6 +16,7 @@ Secure web application gateway based on nginx with integrated web application fi
 - Blocks bad bots, user agents, spam referrer, adware, robots and known bad ips addresses
 - Blocks maleware, ransomeware, click-jacking and click-redirects
 - Blocks known TOR adresses
+- Mailing agent to be informed about attacks and blocking actions
 - Automatic update of all blocking, and CRS lists
 - HTTP security headers to prevent sniffing, crawler, embedding in other pages and much more
 - TLS hardening for modern security
@@ -31,7 +32,6 @@ I need to mention that a lot of the listed security features are part of the "[U
 - Modern web application firewall with ModSecurity and OWASP Core Rule Set
 - GeoIP blocking
 - CalmAV Virus, Trojan and maleware scanner -> Depens on ModSecurity
-- Mailing agent to be informed about attacks and blocking actions
 - Authelia 2-factor single sign on integration
 
 # Documentation
@@ -50,6 +50,12 @@ There is no documentation at the moment, it will come soon. If you want to use i
     - OTHER_DOMAINS=mydomain.com  # (optional) Other domains to include in certificate
     - EMAIL=contact@example.com   # (recommended) Email to use for certificate
     - STAGING="false"             # (required) Use `"true"` for testing, as soon all works switch to `"false"` to avoid rate limits with LetsEncrypt
+    - SMTP_SERVER
+    - SMTP_SENDER_MAIL
+    - SMTP_SENDER_NAME
+    - SMTP_RECEIVER
+    - SMTP_PASSWORD
+    - SMTP_PASSWORD_FILE
 
 ### Docker Compose
 
@@ -80,10 +86,10 @@ services:
     restart: unless-stopped
     
 networks:
-  swag_frontent: # Used as frontend for swag
+  frontent: # Used as frontend for swag
   backend:       # mount your backend applications here to avoid exposing them to the host
     #external:   # Uncommend to use external backend, recommended to allow compose restart without removing the other containers before.
-    #  name: wgag_backend
+    #  name: swag_backend
     
 volumes:
   data:

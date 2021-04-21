@@ -40,8 +40,8 @@ rm /etc/fail2ban/jail.d/alpine-ssh.conf
 mkdir -p /default/fail2ban
 mv /etc/fail2ban/action.d /default/fail2ban/
 mv /etc/fail2ban/filter.d /default/fail2ban/
-# Replace default iptable action to "REJECT" instead of "REJECT --reject-with icmp-port-unreachable" as this cause errors on old iptable versions
-sed -i 's/^blocktype = .*$/blocktype = REJECT/g' /default/fail2ban/action.d/iptables-common.conf
+# Replace default iptable action to "DROP" instead of "REJECT --reject-with icmp-port-unreachable" as this cause errors on old iptable versions
+sed -i 's/^blocktype = .*$/blocktype = DROP/g' /default/fail2ban/action.d/iptables-common.conf
 
 
 # Install ultimate-bad-bot-blocker

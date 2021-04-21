@@ -1,9 +1,9 @@
 # fail2ban jail configuration
 # All changes on this file or on any other fail2ban files require a restart of the container
 
-#
+##
 # Global settings
-#
+##
 
 [DEFAULT]
 
@@ -24,9 +24,25 @@ maxretry = 5
 ignoreip = 127.0.0.1/8 ::1
 
 
-#
+##
+# Mail action and conenction settings
+# DO NOT MODIFY THIS MANUAL, THIS IS DONE AUTOMATICALLY
+##
+
+#action = %(action_mw)s[from=<sendermail>, password=<secretpassword>, destination=<destinationmail>, sendername=<sendername>, smtpserver=<smtpserver>]
+#sender = root@localhost
+#destemail = root@localhost
+action_mw = %(banaction)s[name=%(__name__)s, port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"]
+            %(mta)s-common[name=%(__name__)s, sender="%(sender)s", dest="%(destemail)s", protocol="%(protocol)s", chain="%(chain)s"]
+
+##
+# Mail action settings end, you can modify all settings below again
+##
+
+
+##
 # JAILS
-#
+##
 
 [ssh]
 enabled = false

@@ -1,0 +1,34 @@
+
+# Custom sendmail actions, will not be visible for end users to avoid irritations
+
+[Definition]
+
+actionstop =
+actionstart =
+
+actionban =   printf %%b "Subject: [Fail2Ban] <name>: BANNED IP <ip>!
+              Date: `LC_ALL=C date +"%%a, %%d %%h %%Y %%T %%z"`
+              From: <sendername> <<sender>>
+              To: <destination>\n
+              Hello,\n
+              The jail <name> has banned ip <ip> after <failures> attempts against <name>.\n
+              Here is some info about the IP: https://db-ip.com/<ip> \n
+              Lines containing IP <ip>: \n
+              `grep '<ip>' <logpath>` \n
+              Regards,\n
+              Fail2Ban" | <mailcmd>
+
+actionunban = printf %%b "Subject: [Fail2Ban] <name>: UNBANNED IP <ip>
+              Date: `LC_ALL=C date +"%%a, %%d %%h %%Y %%T %%z"`
+              From: <sendername> <<sender>>
+              To: <destination>\n
+              Hello, \n
+              Fail2ban has unbanned ip https://db-ip.com/<ip> successfully. \n
+              Regards,\n
+              Fail2Ban" | <mailcmd>
+
+[Init]
+
+# Your system mail command
+#
+mailcmd = /usr/sbin/sendmail -t -v -H 'exec openssl s_client -quiet -connect <smtpserver> -starttls smtp' -au<from> -ap<password> -f <from> <destination>

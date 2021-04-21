@@ -1,4 +1,5 @@
-# Common
+#
+# Common paths of nginx logs
 #
 
 [DEFAULT]
