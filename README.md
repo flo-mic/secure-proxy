@@ -39,7 +39,7 @@ I need to mention that a lot of the listed security features are part of the "[U
 There is no documentation at the moment, it will come soon. If you want to use it have a look at the docker compose file below and the list of available settings. The configuration of your reverse proxies can be configured within the folder `/config/nginx`. Other settings are also located in `/config`. 
 
 ### Docker settings:
-All configuration files are stored in `/config`. Therefore it is recommended to make this file persistent and mount it with an docker volume or local path. The SWAG instance is listening on port `80` and `443`. You need to map both ports and also configure portforwarding for poth ports. There is no security issue if you open port 80 as well as there is an immerdiate redirect to port 443. Port 80 is only required for the Let's Encrypt http challenge.
+All configuration files are stored in `/config`. Therefore it is recommended to make this folder persistent and mount it with an docker volume or local path. The SWAG instance is listening on port `80` and `443`. You need to map both ports and also configure portforwarding for poth ports. There is no security issue if you open port 80 as well as there is an immerdiate redirect to port 443. Port 80 is only required for the Let's Encrypt http challenge.
 
 #### General docker parameter
 - `-p 80:80`
@@ -95,7 +95,7 @@ services:
     restart: unless-stopped
     
 networks:
-  frontent: # Used as frontend for swag
+  frontent:      # Used as frontend for swag
   backend:       # mount your backend applications here to avoid exposing them to the host
     #external:   # Uncommend to use external backend, recommended to allow compose restart without removing the other containers before.
     #  name: swag_backend

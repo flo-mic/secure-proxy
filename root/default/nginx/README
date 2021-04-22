@@ -3,7 +3,7 @@ This directory includes the nginx configuration.
 
 All changes on files in this folder will get active immediately. 
 There is a file watcher (inotify) which will allow nginx to perform a hot reload if your changes are valid.
-If changes are not valid nginx will not load them. To troubleshoot them you can open the log docker logs, all details will be visible there.
+If changes are not valid nginx will not load them. To troubleshoot them you can open the docker logs ot `/config/logs/nginx/watcher/nginx-watcher.log`, all details will be visible there.
 
 If you add new files/folders in the root folder make sure to add them in the related config files so nginx can load them. 
 If you add new files in the existing folders, they will be included by default because the folders are already included in the configguration.
