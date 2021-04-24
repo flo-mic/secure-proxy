@@ -1,8 +1,7 @@
 #!/usr/bin/with-contenv bash
 
 # Create log directory
-mkdir -p /config/logs/nginx-watcher
-LOG_FILE=/config/logs/nginx-watcher/nginx-watcher.log
+LOG_FILE=/config/logs/nginx/reload.log
 
 # Listens for file changes on nginx config files
 inotifywait -rq --event modify,move,create,delete /config/nginx |

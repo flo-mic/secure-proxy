@@ -1,4 +1,4 @@
-/config/log/nginx-watcher/nginx-watcher.log {
+/config/log/refresh-agent/*.log {
 
     # rotate log files daily, weekly...
     weekly
