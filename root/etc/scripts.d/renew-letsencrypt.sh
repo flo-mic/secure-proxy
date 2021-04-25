@@ -6,6 +6,6 @@ certbot -n renew \
     sleep 1 && \
     cat privkey.pem fullchain.pem > priv-fullchain-bundle.pem && \
     sleep 1 && \
-    cp -f /config/letsencrypt/live/${DOMAIN}/* /config/letsencrypt/current/ \
-    chown -R swag:swag /config/letsencrypt \
+    cp -f /config/letsencrypt/live/${DOMAIN}/* /config/letsencrypt/current/ && \
+    chown -R swag:swag /config/letsencrypt && \
     nginx -c /config/nginx/nginx.conf -s reload"

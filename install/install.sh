@@ -22,7 +22,6 @@ apk add --no-cache --upgrade \
     apache2-utils \
     ca-certificates \
     certbot \
-    certbot-nginx \
     fail2ban \
     gnupg \
     inotify-tools \

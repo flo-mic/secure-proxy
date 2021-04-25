@@ -22,7 +22,9 @@ if [[ ! $DOMAIN == *.* ]]; then
 fi
 
 # Read current config if available
-source /config/letsencrypt/certbot.conf
+if [[ -f /config/letsencrypt/certbot.conf ]]; then
+    source /config/letsencrypt/certbot.conf
+fi
 if [[ ! -n $CERT_REVOKE_STAGING ]]; then
     CERT_REVOKE_STAGING=$STAGING
 fi
@@ -43,12 +45,6 @@ if [[ $CERTBOT_STATUS -ne 0 ]]; then
     echo "**** Certbot config has changed, prepare new certificate ****"
     # Update certbot configuration
     mv -f /config/letsencrypt/certbot_tmp.conf  /config/letsencrypt/certbot.conf
-    # Remove existing certs from live, archive and renewal folder
-    rm -Rf /config/letsencrypt/live/$CERT_DOMAIN/
-    rm -Rf /config/letsencrypt/archive/*
-    rm -f /config/letsencrypt/renewal/*
-    rm -f /config/letsencrypt/csr/*
-    rm -f /config/letsencrypt/keys/*
 else
     rm /config/letsencrypt/certbot_tmp.conf
 fi
@@ -65,6 +61,24 @@ if [[ $CERTBOT_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
     
     echo "**** Requesting new certificate from LetsEncrypt ****"
     
+    # Remove existing certs from live, archive and renewal folder
+    if [[ -n $CERT_DOMAIN ]]; then
+        rm -Rf /config/letsencrypt/live/$CERT_DOMAIN/
+    fi
+    rm -Rf /config/letsencrypt/archive/*
+    rm -f /config/letsencrypt/renewal/*
+    rm -f /config/letsencrypt/csr/*
+    rm -f /config/letsencrypt/keys/*
+
+    # Create temp certificate to avoid nginx chrash as no certificate is available
+    if [[ ! -f "/config/letsencrypt/current/privkey.pem" ]]; then
+        openssl req -new -x509 -days 365 -nodes \
+            -out /config/letsencrypt/current/fullchain.pem \
+            -keyout /config/letsencrypt/current/privkey.pem \
+            -subj "/C=DE/CN=flo-mic-swag.com" > /dev/null 2>&1
+            sleep 1
+    fi
+
     echo "Domain: ${DOMAIN}"
     REQUEST_DOMAINS="-d ${DOMAIN}"
     
@@ -99,7 +113,7 @@ if [[ $CERTBOT_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
         REQUEST_EMAIL="--register-unsafely-without-email"
     fi
 
-    REQUEST_PARAMETERS="--renew-by-default --nginx --nginx-server-root /config/nginx --non-interactive --preferred-challenges http \
+    REQUEST_PARAMETERS="--renew-by-default --webroot -w /config/www --non-interactive --preferred-challenges http \
         --logs-dir /config/logs/letsencrypt --rsa-key-size 4096 --agree-tos"
     
     # Request certificate
@@ -156,7 +170,7 @@ if [[ $CERTBOT_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
         cp /config/letsencrypt/live/$DOMAIN/* /config/letsencrypt/current/
 
     else
-        if [[ -f "/config/letsencrypt/current/cert.pem" ]]; then 
+        if [[ -f "/config/letsencrypt/current/privkey.pem" ]]; then 
             echo "ERROR: Certbot failed, use old certificate until this is fixed. Please check your input parameters to get a new certificate."
         else
             echo "ERROR: Certbot failed and no existing certificate available. Fix the issue by checking the parameters, port and firewall settings. Restart the container"
