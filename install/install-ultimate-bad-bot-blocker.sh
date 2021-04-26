@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Enable early exit in case of errors
+set -e
+set -o pipefail
+
 # Install ultimate bad bot blocker
 echo "**** Installing ultimate bad bot blocker ****"
 
@@ -29,7 +33,7 @@ curl -sL https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot
 
 
 # Extract includes for vhost from this file and place in custom conf file
-mv /tmp/default/nginx/sites-conf.d/ultimate-bad-bot-blocker.conf /default/nginx/sites-conf.d/ultimate-bad-bot-blocker.conf
+mv /tmp/swag-installer/default/nginx/sites-conf.d/ultimate-bad-bot-blocker.conf /default/nginx/sites-conf.d/ultimate-bad-bot-blocker.conf
 VHOST_INCLUDES=$(sed -n '/^VHOST_INCLUDES=\"$/,/^$/{ /^VHOST_INCLUDES=\"$/d; /^$/d; p;}' /tmp/include_filelist.txt | head -n -1 | sed -e 's/^[[:space:]]*//')
 for include in $VHOST_INCLUDES
 do
