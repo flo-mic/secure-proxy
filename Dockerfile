@@ -1,8 +1,19 @@
-FROM alpine:latest
+# Build image
+FROM alpine:latest as compile_modsecurity
 
-##
-# BASE image preparation
-##
+ARG NGINX_VERSION=1.18.0
+ARG MODSECURITY_VERSION=v3.0.4
+ARG OWASP_BRANCH=v3.3/master
+
+#Copy Install scripts
+COPY install/ /tmp/swag-installer/
+
+# Install build image components
+RUN ./tmp/swag-installer/install-modsecurity-module.sh
+
+
+# Main image
+FROM alpine:latest
 
 LABEL maintainer="flo-mic" \
    description="Secure web application gateway/firewall"
@@ -18,17 +29,14 @@ ENV ARCH="x86_64" \
 ADD https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-amd64-installer /tmp/
 
 #Copy Install scripts
-COPY install/ /tmp/
+COPY install/ /tmp/swag-installer/
 
-# Install base image
-RUN ./tmp/install-baseimage.sh
-
-##
-# BASE image preparation done
-##
+# Copy artifacts from build image
+COPY --from=compile_modsecurity /tmp/nginx /tmp/nginx
+COPY --from=compile_modsecurity /usr/local/modsecurity /usr/local/modsecurity
 
 # Install image components
-RUN ./tmp/install.sh && rm -rf /tmp/*
+RUN ./tmp/swag-installer/install.sh && rm -rf /tmp/*
 
 # Copy/replace root files
 COPY root/ /

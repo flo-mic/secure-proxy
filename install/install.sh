@@ -4,8 +4,12 @@
 set -e
 set -o pipefail
 
+# Load env vars from compile image
+source /tmp/nginx/envvars.txt
 
-# Install base components
+# Install base image components
+./tmp/swag-installer/install-base-image.sh
+
 echo "**** install build packages ****"
 apk add --no-cache --virtual=build-dependencies \
     cargo \
@@ -15,22 +19,28 @@ apk add --no-cache --virtual=build-dependencies \
 	tar \
     wget
 
-
 # Install runtime packages
 echo "**** install runtime packages ****"
 apk add --no-cache --upgrade \
     apache2-utils \
     ca-certificates \
     certbot \
+    curl-dev \
     fail2ban \
     gnupg \
     inotify-tools \
+    libmaxminddb-dev \
+    libstdc++ \
+    libxml2-dev \
+    lmdb-dev \
     memcached \
-    nginx \
+    nginx~=${NGINX_VERSION} \
     nginx-mod-http-brotli \
+    nginx-mod-http-geoip \
     nginx-mod-http-headers-more \
     openssl \
-    tzdata
+    tzdata \
+    yajl
 
 
 # Prepare fail2ban and move to default as template
@@ -39,19 +49,23 @@ rm /etc/fail2ban/jail.d/alpine-ssh.conf
 mkdir -p /default/fail2ban
 mv /etc/fail2ban/action.d /default/fail2ban/
 mv /etc/fail2ban/filter.d /default/fail2ban/
+
 # Replace default iptable action to "DROP" instead of "REJECT --reject-with icmp-port-unreachable" as this cause errors on old iptable versions
 sed -i 's/^blocktype = .*$/blocktype = DROP/g' /default/fail2ban/action.d/iptables-common.conf
 
+# Copy  ModSecurity nginx module
+cp /tmp/nginx/ngx_http_modsecurity_module.so /usr/lib/nginx/modules
+cp /tmp/nginx/10_http_modsecurity.conf /etc/nginx/modules
 
 # Install ultimate-bad-bot-blocker
-chmod +x /tmp/install-ultimate-bad-bot-blocker.sh
-./tmp/install-ultimate-bad-bot-blocker.sh
+chmod +x /tmp/swag-installer/install-ultimate-bad-bot-blocker.sh
+./tmp/swag-installer/install-ultimate-bad-bot-blocker.sh
 
 
 # Apply custom cron config
 echo "**** import custom crontabs ****"
 mkdir -p /etc/crontabs
-crontab -u root /tmp/etc/crontabs/root
+crontab -u root /tmp/swag-installer/etc/crontabs/root
 
 
 # Cleanup before deploying
