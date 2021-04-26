@@ -77,6 +77,13 @@ filter   = nginx-deny
 logpath  = %(nginx_error_log)s
 
 
+[nginx-modsecurity]
+enabled  = true
+port     = http,https
+filter   = nginx-modsecurity
+logpath  = %(nginx_error_log)s
+
+
 [nginx-nohome]
 enabled  = true
 port     = http,https
