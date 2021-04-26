@@ -19,6 +19,10 @@ server {
 	# include site related configurations like ssl, error pages, robots deny list etc
 	include /config/nginx/sites-conf.d/*.conf;
 
+	# Enable ModSecurity Web Application Firewall inside this server block
+    modsecurity on;
+    modsecurity_rules_file /config/nginx/modsec.d/main.conf;
+
 	# Default location in case no location is specified
 	location / {
 		try_files $uri $uri/ /index.html =404;

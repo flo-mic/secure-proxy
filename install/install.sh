@@ -54,8 +54,15 @@ mv /etc/fail2ban/filter.d /default/fail2ban/
 sed -i 's/^blocktype = .*$/blocktype = DROP/g' /default/fail2ban/action.d/iptables-common.conf
 
 # Copy  ModSecurity nginx module
+echo "**** copy ModSecurity binaries ****"
 cp /tmp/nginx/ngx_http_modsecurity_module.so /usr/lib/nginx/modules
 cp /tmp/nginx/10_http_modsecurity.conf /etc/nginx/modules
+
+# Copy OWASP core rule set for ModSecurity
+echo "**** copy OWASP core rule set ****"
+mkdir -p /default/nginx/modsec.d
+cp /tmp/nginx/owasp-modsecurity-crs/crs-setup.conf.example /default/nginx/modsec.d/crs-setup.conf
+cp -r /tmp/nginx/owasp-modsecurity-crs/rules /default/nginx/modsec.d/crs-rules/
 
 # Install ultimate-bad-bot-blocker
 chmod +x /tmp/swag-installer/install-ultimate-bad-bot-blocker.sh

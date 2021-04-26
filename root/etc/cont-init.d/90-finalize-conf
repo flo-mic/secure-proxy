@@ -4,3 +4,6 @@
 chown -R swag:swag /config
 chmod -R 0644 /etc/logrotate.d
 chmod -R +r /config/logs
+mkdir -p /var/lib/nginx/cache
+chown -R swag:swag /var/lib/nginx/cache
+chmod 677 /var/lib/nginx/cache/

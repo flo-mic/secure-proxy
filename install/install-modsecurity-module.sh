@@ -60,10 +60,10 @@ rm -Rf /tmp/ModSecurity \
 	/usr/local/modsecurity/lib/libmodsecurity.la
 cd /tmp
 
-# Clone ModSecurity nginx nonnector OWASP rules and download/extract nginx
-echo 'Clone ModSecurity nginx Ccnnector, OWASP rules and download/extract nginx'
+# Clone ModSecurity nginx connector and download nginx source files
+echo 'Clone ModSecurity nginx connector and download nginx source files'
 git clone -b master --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git
-git clone -b ${OWASP_BRANCH} --depth 1 https://github.com/coreruleset/coreruleset.git /usr/local/owasp-modsecurity-crs
+git clone -b ${OWASP_BRANCH} --depth 1 https://github.com/coreruleset/coreruleset.git /tmp/nginx/owasp-modsecurity-crs
 wget -O - https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz | tar -xz
 
 # Get current nginx configuration
