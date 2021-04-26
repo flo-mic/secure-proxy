@@ -3,17 +3,16 @@
 
 # swag
 
-Secure web application gateway based on nginx with integrated web application firewall, Let's Encrypt, fail2ban and a lot more 😉 It is designed as a pure reverse proxy which faces to the public internet. It can also server static files which you lace inside the foler `/config/www`. Of course you can also use this internally but you will not be able to use LetsEncrypt as this requires a http challenge at the moment. The SWAG is designed to secure your application and the data you host on them. It comes with serval well known open source security features like fail2ban ip blocking etc.
+Secure web application gateway based on nginx with integrated web application firewall, Let's Encrypt, fail2ban and a lot more 😉 It is designed as a pure reverse proxy which faces to the public internet. It can also server static files which you lace inside the foler `/config/www`. Of course you can also use this internally but you will not be able to use Let's Encrypt as this requires a http challenge at the moment. The SWAG is designed to secure your application and the data you host on them. It comes with serval well known open source security features like fail2ban ip blocking etc.
 
 
 # Integrated features
 
 - Let's Encrypt support
-- Docker dns resolving
-- Nginx runs without privileged root permissions
+- Modern web application firewall with ModSecurity and OWASP Core Rule Set
 - Anti DDOS enabled with nginx rate limits
-- Prevents bruteforce attacks
-- Blocks bad bots, user agents, spam referrer, adware, robots and known bad ips addresses
+- Prevent SQL and XSS Injection
+- Blocks bad bots, user agents, spam referrer, adware, robots and known bad IP addresses
 - Blocks maleware, ransomeware, click-jacking and click-redirects
 - Blocks known TOR adresses
 - Mailing agent to be informed about attacks and blocking actions
@@ -21,25 +20,26 @@ Secure web application gateway based on nginx with integrated web application fi
 - HTTP security headers to prevent sniffing, crawler, embedding in other pages and much more
 - TLS hardening for modern security
 - Nginx leak prevention
-- Improved pervormance with brotli and server tweakings
+- Nginx without privileged root permissions
+- Docker dns resolving
+- Improved performance with brotli and server tweakings
 - Clean image with auto logrotate
-- Custom error page, also for bots to hide that we are running on a nginx
+- Custom error pages to hide that nginx is running
 
 I need to mention that a lot of the listed security features are part of the "[Ultimate Bad Bot Blocker](https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker)" from [mitchellkrogza](https://github.com/mitchellkrogza). So many thanks to this great project which is great project and really well maintained!
 
 # Features in pipeline
 
-- Modern web application firewall with ModSecurity and OWASP Core Rule Set
 - GeoIP blocking
-- CalmAV Virus, Trojan and maleware scanner -> Depens on ModSecurity
-- Authelia 2-factor single sign on integration
+- CalmAV Virus, Trojan and maleware scanner
+- Single Sign On integration
 
 # Documentation
 
-There is no documentation at the moment, it will come soon. If you want to use it have a look at the docker compose file below and the list of available settings. The configuration of your reverse proxies can be configured within the folder `/config/nginx`. Other settings are also located in `/config`. 
+There is no documentation at the moment, it will come soon. If you want to use it have a look at the docker compose file below and the list of available settings. The configuration of your reverse proxies can be configured within the folder `/config/nginx/sites-available`. Other settings are also located in `/config`. 
 
 ### Docker settings:
-All configuration files are stored in `/config`. Therefore it is recommended to make this folder persistent and mount it with an docker volume or local path. The SWAG instance is listening on port `80` and `443`. You need to map both ports and also configure portforwarding for poth ports. There is no security issue if you open port 80 as well as there is an immerdiate redirect to port 443. Port 80 is only required for the Let's Encrypt http challenge.
+All configuration files are stored in `/config`. Therefore it is recommended to make this folder persistent and mount it with an docker volume or local path. The SWAG instance is listening on port `80` and `443`. You need to map both ports and also configure port forwarding for both ports. There is no security issue if you open port 80 as there is an immediate redirect to port 443. Port 80 is only required for the initial connect of the Let's Encrypt http challenge.
 
 #### General docker parameter
 - `-p 80:80`
@@ -114,3 +114,6 @@ volumes:
 - Nikto web server scanner https://github.com/sullo/nikto
 - Nginx-errors https://github.com/bartosjiri/nginx-errors
 - Let's Encrypt https://letsencrypt.org/de/
+- ModSecurity https://github.com/SpiderLabs/ModSecurity
+- OWASP Core rule set https://github.com/coreruleset/coreruleset/tree/v3.3/master
+

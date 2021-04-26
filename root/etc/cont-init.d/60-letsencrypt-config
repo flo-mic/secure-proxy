@@ -173,7 +173,7 @@ if [[ $CERTBOT_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
         if [[ -f "/config/letsencrypt/current/privkey.pem" ]]; then 
             echo "ERROR: Certbot failed, use old certificate until this is fixed. Please check your input parameters to get a new certificate."
         else
-            echo "ERROR: Certbot failed and no existing certificate available. Fix the issue by checking the parameters, port and firewall settings. Restart the container"
+            echo "ERROR: Certbot failed and no existing certificate available. Fix the issue by checking the parameters, port and firewall settings. Restart the container to request a new certificate."
             sleep infinity
         fi
     fi
