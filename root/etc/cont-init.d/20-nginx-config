@@ -3,6 +3,10 @@
 # Create log folder
 mkdir -p /config/logs/nginx
 
+# Link log folder to default location
+rm -rf /var/log/nginx
+ln -s /config/logs/nginx /var/log/nginx
+
 # Download dhparam key from https://2ton.com.au/dhtool/
 if [[ ! -f "/config/nginx/dhparam4096.pem" ]] || ! grep -q 'PARAMETERS' "/config/nginx/dhparam4096.pem"; then
     echo "**** downloading fresh generated 4096 dhparam key ****"
