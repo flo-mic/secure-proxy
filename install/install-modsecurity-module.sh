@@ -8,7 +8,8 @@ set -o pipefail
 mkdir -p /tmp/nginx
 echo "NGINX_VERSION=${NGINX_VERSION}
 MODSECURITY_VERSION=${MODSECURITY_VERSION}
-OWASP_BRANCH=${OWASP_BRANCH}" > /tmp/nginx/envvars.txt
+OWASP_BRANCH=${OWASP_BRANCH}
+SSDEEP_VERSION=${SSDEEP_VERSION}" > /tmp/nginx/envvars.txt
 
 # Install base components
 echo "**** install build packages ****"
@@ -41,15 +42,25 @@ apk add --no-cache --virtual=build-dependencies \
     zlib-dev
 
 # Install reguired packages
-apk add --no-cache --upgrade nginx~=${NGINX_VERSION}
+apk add --no-cache --upgrade \
+    lua-dev \
+    nginx-mod-http-lua
 
 # Move to work dir
 cd /tmp
 
+# Install ssdeep package
+wget --quiet https://github.com/ssdeep-project/ssdeep/releases/download/release-${SSDEEP_VERSION}/ssdeep-${SSDEEP_VERSION}.tar.gz
+tar -xvzf ssdeep-${SSDEEP_VERSION}.tar.gz
+cd ssdeep-${SSDEEP_VERSION}
+./configure 
+make install
+cd /tmp
+
 # Compile ModSecurity, destination folder is /usr/local/modsecurity
 echo "Install ModSecurity libraries"
-git clone -b ${MODSECURITY_VERSION} --depth 1 https://github.com/SpiderLabs/ModSecurity
-git -C /tmp/ModSecurity submodule update --init --recursive
+git clone -b ${MODSECURITY_VERSION} --depth 1 --quiet https://github.com/SpiderLabs/ModSecurity
+git -C /tmp/ModSecurity submodule update --init --recursive --quiet
 cd "/tmp/ModSecurity"
 ./build.sh
 ./configure --with-lmdb
@@ -62,9 +73,9 @@ cd /tmp
 
 # Clone ModSecurity nginx connector and download nginx source files
 echo 'Clone ModSecurity nginx connector and download nginx source files'
-git clone -b master --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git
-git clone -b ${OWASP_BRANCH} --depth 1 https://github.com/coreruleset/coreruleset.git /tmp/nginx/owasp-modsecurity-crs
-wget -O - https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz | tar -xz
+git clone -b master --depth 1 --quiet https://github.com/SpiderLabs/ModSecurity-nginx.git
+git clone -b ${OWASP_BRANCH} --depth 1 --quiet https://github.com/coreruleset/coreruleset.git /tmp/nginx/owasp-modsecurity-crs
+wget --quiet -O - https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz | tar -xz
 
 # Get current nginx configuration
 NGINX_CONFIGURATION_ARGUMENTS=$(nginx -V 2>&1 | grep 'configure arguments' | sed 's/configure arguments: //' | sed 's/--add-dynamic-module=.*\///')
@@ -78,3 +89,6 @@ make modules
 # Copy modules and create module configuration
 cp /tmp/nginx-$NGINX_VERSION/objs/ngx_http_modsecurity_module.so /tmp/nginx/
 echo "load_module \"modules/ngx_http_modsecurity_module.so\";" > /tmp/nginx/10_http_modsecurity.conf
+
+# Create plugin folder if not present, only present in OWASP 3.4
+mkdir -p /tmp/nginx/owasp-modsecurity-crs/plugins

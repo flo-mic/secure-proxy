@@ -24,6 +24,7 @@ Secure web application gateway based on nginx with integrated web application fi
 - Nginx without privileged root permissions
 - Docker dns resolving
 - Improved performance with brotli and server tweakings
+- Lua Module integrated
 - Clean image with auto logrotate
 - Custom error pages to hide that nginx is running
 

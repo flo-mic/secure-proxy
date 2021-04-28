@@ -32,7 +32,7 @@ if [[ ! -f /config/logs/nginx/access.log ]]; then
 	touch /config/logs/nginx/access.log
 fi
 
-# Download/update CSR, bad bot, blocking and serval other lists
+# Download/update bad bot, blocking and serval other lists
 chmod +x /etc/scripts.d/refresh-agent.sh
 /etc/scripts.d/refresh-agent.sh
 sleep 1

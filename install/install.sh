@@ -33,11 +33,14 @@ apk add --no-cache --upgrade \
     libstdc++ \
     libxml2-dev \
     lmdb-dev \
+    lua-dev \
+    lua-socket \
     memcached \
     nginx~=${NGINX_VERSION} \
     nginx-mod-http-brotli \
     nginx-mod-http-geoip \
     nginx-mod-http-headers-more \
+    nginx-mod-http-lua \
     openssl \
     tzdata \
     yajl
@@ -60,9 +63,12 @@ cp /tmp/nginx/10_http_modsecurity.conf /etc/nginx/modules
 
 # Copy OWASP core rule set for ModSecurity
 echo "**** copy OWASP core rule set ****"
-mkdir -p /default/nginx/modsec.d
-cp /tmp/nginx/owasp-modsecurity-crs/crs-setup.conf.example /default/nginx/modsec.d/crs-setup.conf
-cp -r /tmp/nginx/owasp-modsecurity-crs/rules /default/nginx/modsec.d/crs-rules/
+mkdir -p /default/nginx/modsec-owasp-crs.d
+cp /tmp/nginx/owasp-modsecurity-crs/crs-setup.conf.example /default/nginx/modsec-owasp-crs.d/crs-setup.conf
+cp /tmp/nginx/owasp-modsecurity-crs/LICENSE /default/nginx/modsec-owasp-crs.d/LICENSE
+cp -r /tmp/nginx/owasp-modsecurity-crs/rules /default/nginx/modsec-owasp-crs.d/rules/
+cp -r /tmp/nginx/owasp-modsecurity-crs/util /default/nginx/modsec-owasp-crs.d/util/
+cp -r /tmp/nginx/owasp-modsecurity-crs/plugins /default/nginx/modsec-owasp-crs.d/plugins/
 
 # Install ultimate-bad-bot-blocker
 chmod +x /tmp/swag-installer/install-ultimate-bad-bot-blocker.sh

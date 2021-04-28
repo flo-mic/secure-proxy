@@ -1,0 +1,7 @@
+#!/usr/bin/with-contenv bash
+
+# Replace unicode mapping to ensure this is always updated
+cp /default/nginx/modsec.d/unicode.mapping /config/nginx/modsec.d/unicode.mapping
+
+# Replace OWASP Core Rule set files to be updated to latest version
+cp /default/nginx/modsec-owasp-crs.d/crs-rules/* /config/nginx/modsec-owas-crs.d/crs-rules/
