@@ -11,6 +11,7 @@ Secure web application gateway based on nginx with integrated web application fi
 - Let's Encrypt support
 - Modern web application firewall with ModSecurity and OWASP Core Rule Set
 - Anti DDOS enabled with nginx rate limits
+- Automatic ban by strange behavior of clients
 - Prevent SQL and XSS Injection
 - Blocks bad bots, user agents, spam referrer, adware, robots and known bad IP addresses
 - Blocks maleware, ransomeware, click-jacking and click-redirects
@@ -77,8 +78,6 @@ services:
     networks: 
        - frontend
        - backend
-    dns:
-       - 8.8.8.8
     ports:
       - "80:80"
       - "443:443"
@@ -115,5 +114,5 @@ volumes:
 - Nginx-errors https://github.com/bartosjiri/nginx-errors
 - Let's Encrypt https://letsencrypt.org/de/
 - ModSecurity https://github.com/SpiderLabs/ModSecurity
-- OWASP Core rule set https://github.com/coreruleset/coreruleset/tree/v3.3/master
+- OWASP Core rule set https://github.com/coreruleset/coreruleset
 
