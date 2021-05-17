@@ -31,9 +31,9 @@ I need to mention that a lot of the listed security features are part of the "[U
 
 # Features in pipeline
 
-- GeoIP blocking
+- GeoIP database to block/allow access per country to strenght the overall security
 - CalmAV file system scan. Needed Environment variables: Scan-Interval, Scan-Directories, Scan-Action, E-Mail-Report
-- Single Sign On integration
+- Single Sign On integration for applications without any authentication
 
 # Documentation
 
