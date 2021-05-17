@@ -75,7 +75,7 @@ if [[ $CERTBOT_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
         openssl req -new -x509 -days 365 -nodes \
             -out /config/letsencrypt/current/fullchain.pem \
             -keyout /config/letsencrypt/current/privkey.pem \
-            -subj "/C=DE/CN=flo-mic-swag.com" > /dev/null 2>&1
+            -subj "/C=DE/CN=flo-mic-secure-proxy.com" > /dev/null 2>&1
             sleep 1
     fi
 

@@ -31,5 +31,5 @@
     #postrotate
     #endscript
 
-    su swag swag
+    su secproxy secproxy
 }

@@ -22,8 +22,8 @@ rm /tmp/s6-overlay-installer
 # Create user
 echo "**** create user and make folders ****"
 groupmod -g 1000 users
-useradd -u 911 -U -d /config -s /bin/false swag
-usermod -G users swag
+useradd -u 911 -U -d /config -s /bin/false secproxy
+usermod -G users secproxy
 mkdir -p \
     /config \
     /default

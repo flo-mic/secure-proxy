@@ -74,8 +74,8 @@ export LUAJIT_INC=${OPENRESTY_PATH}/
 echo 'Compile Nginx'
 cd "/tmp/nginx-$NGINX_VERSION"
 ./configure \
-    --user=swag \
-    --group=swag \
+    --user=secproxy \
+    --group=secproxy \
     --prefix=/var/lib/nginx \
     --sbin-path=/usr/sbin/nginx \
     --modules-path=/usr/lib/nginx/modules \

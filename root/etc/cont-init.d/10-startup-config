@@ -4,9 +4,9 @@
 PUID=${PUID:-911}
 PGID=${PGID:-911}
 
-# Update user and group id of swag user
-groupmod -o -g "$PGID" swag >/dev/null
-usermod -o -u "$PUID" swag >/dev/null
+# Update user and group id of secproxy user
+groupmod -o -g "$PGID" secproxy >/dev/null
+usermod -o -u "$PUID" secproxy >/dev/null
 
 echo '
 -------------------------------------
@@ -18,14 +18,14 @@ echo '
 -------------------------------------
 -------------------------------------'
 echo "
-User uid:    $(id -u swag)
-User gid:    $(id -g swag)
+User uid:    $(id -u secproxy)
+User gid:    $(id -g secproxy)
 -------------------------------------
 "
 
-# Set permission for swag user
-chown swag:swag /config
-chown swag:swag /default
+# Set permission for secproxy user
+chown secproxy:secproxy /config
+chown secproxy:secproxy /default
 
 
 # Copy template files if not exist

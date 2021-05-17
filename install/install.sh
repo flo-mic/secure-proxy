@@ -67,20 +67,20 @@ apk add --no-cache --upgrade \
 
 
 # Install base image components
-./tmp/swag-installer/install-base-image.sh
+./tmp/secproxy-installer/install-base-image.sh
 
 
 # Install Modsecurity
-./tmp/swag-installer/install-modsecurity.sh
+./tmp/secproxy-installer/install-modsecurity.sh
 
 
 # Install Nginx
-./tmp/swag-installer/install-nginx.sh
+./tmp/secproxy-installer/install-nginx.sh
 
 
 # Install ultimate-bad-bot-blocker
-chmod +x /tmp/swag-installer/install-ultimate-bad-bot-blocker.sh
-./tmp/swag-installer/install-ultimate-bad-bot-blocker.sh
+chmod +x /tmp/secproxy-installer/install-ultimate-bad-bot-blocker.sh
+./tmp/secproxy-installer/install-ultimate-bad-bot-blocker.sh
 
 
 # Prepare fail2ban and move to default as template
@@ -95,7 +95,7 @@ sed -i 's/^blocktype = .*$/blocktype = DROP/g' /default/fail2ban/action.d/iptabl
 # Apply custom cron config
 echo "Import custom crontabs"
 mkdir -p /etc/crontabs
-crontab -u root /tmp/swag-installer/etc/crontabs/root
+crontab -u root /tmp/secproxy-installer/etc/crontabs/root
 
 
 # Cleanup before deploying

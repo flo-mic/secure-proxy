@@ -1,6 +1,6 @@
-# swag
+# Secure-Proxy
 
-Secure web application gateway based on nginx with integrated web application firewall, Let's Encrypt, fail2ban and a lot more 😉 It is designed as a pure reverse proxy which faces to the public internet. It can also server static files which you place inside the foler `/config/www`. It has an integrated Lua support. You can also use this internally but you will not be able to use Let's Encrypt as this requires a http challenge at the moment. The SWAG is designed to secure your application and the data you host on them. It comes with serval well known open source security features like fail2ban ip blocking etc.
+Secure-Proxy based on nginx with integrated web application firewall, Let's Encrypt, fail2ban, ClamAV upload scan and a lot more 😉. It is designed as a pure reverse proxy which faces to the public internet. It can also server static files which you place inside the foler `/config/www`. It has an integrated Openresty Lua support. You can also use this internally but you will not be able to use Let's Encrypt as this requires a http challenge at the moment. The proxy server is designed to secure your application and the data you host on them. It comes with serval well known open source security features like fail2ban ip blocking, ClamAV, etc.
 
 
 # Integrated features
@@ -40,7 +40,7 @@ I need to mention that a lot of the listed security features are part of the "[U
 There is no documentation at the moment, it will come soon. If you want to use it have a look at the docker compose file below and the list of available settings. The configuration of your reverse proxies can be configured within the folder `/config/nginx/sites-available`. Other settings are also located in `/config`. 
 
 ### Docker settings:
-All configuration files are stored in `/config`. Therefore it is recommended to make this folder persistent and mount it with an docker volume or local path. The SWAG instance is listening on port `80` and `443`. You need to map both ports and also configure port forwarding for both ports. There is no security issue if you open port 80 as there is an immediate redirect to port 443. Port 80 is only required for the initial connect of the Let's Encrypt http challenge.
+All configuration files are stored in `/config`. Therefore it is recommended to make this folder persistent and mount it with an docker volume or local path. The proxy instance is listening on port `80` and `443`. You need to map both ports and also configure port forwarding for both ports. There is no security issue if you open port 80 as there is an immediate redirect to port 443. Port 80 is only required for the initial connect of the Let's Encrypt http challenge.
 
 #### General docker parameter
 - `-p 80:80`
@@ -72,12 +72,11 @@ All configuration files are stored in `/config`. Therefore it is recommended to 
 ```
 version: "3.7"
 services:
-  swag:
-    image: ghcr.io/flo-mic/swag:latest
-    hostname: swag
+  secure-proxy:
+    image: ghcr.io/flo-mic/secure-proxy:latest
+    hostname: secure-proxy
     networks: 
-       - frontend
-       - backend
+      - backend
     ports:
       - "80:80"
       - "443:443"
@@ -94,10 +93,9 @@ services:
     restart: unless-stopped
     
 networks:
-  frontent:      # Used as frontend for swag
   backend:       # mount your backend applications here to avoid exposing them to the host
     #external:   # Uncommend to use external backend, recommended to allow compose restart without removing the other containers before.
-    #  name: swag_backend
+    #  name: application_backend
     
 volumes:
   data:
@@ -109,10 +107,11 @@ volumes:
 
 - Bunkerized nginx https://github.com/bunkerity/bunkerized-nginx
 - Ultimate bad bot blocker https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker
-- Linuxserver SWAG https://github.com/linuxserver/docker-swag
 - Nikto web server scanner https://github.com/sullo/nikto
 - Nginx-errors https://github.com/bartosjiri/nginx-errors
 - Let's Encrypt https://letsencrypt.org/de/
 - ModSecurity https://github.com/SpiderLabs/ModSecurity
 - OWASP Core rule set https://github.com/coreruleset/coreruleset
+- ClamAV antivirus https://www.clamav.net
+- R-FX Networks LMD AV definitions for Webserver https://www.rfxn.com/projects/linux-malware-detect
 

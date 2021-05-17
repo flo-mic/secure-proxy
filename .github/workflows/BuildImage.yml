@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  ENDPOINT: "flo-mic/swag"
+  ENDPOINT: "flo-mic/secure-proxy"
   VERSION: "latest"
   
 jobs:

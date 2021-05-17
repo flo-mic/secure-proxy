@@ -11,7 +11,7 @@ ARG OWASP_VERSION=3.3
 ARG RUNS_ON_GITHUB=false
 
 LABEL maintainer="flo-mic" \
-   description="Secure web application gateway"
+   description="Secure-Proxy based on nginx with modsecurity, fail2ban, clamav and much more."
 
 # environment variables
 ENV ARCH="x86_64" \    
@@ -21,10 +21,10 @@ ENV ARCH="x86_64" \
    TERM="xterm"
 
 #Copy Install scripts
-COPY install/ /tmp/swag-installer/
+COPY install/ /tmp/secproxy-installer/
 
 # Install image components
-RUN ./tmp/swag-installer/install.sh && rm -rf /tmp/*
+RUN ./tmp/secproxy-installer/install.sh && rm -rf /tmp/*
 
 # Copy/replace root files
 COPY root/ /

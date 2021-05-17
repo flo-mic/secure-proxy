@@ -1,5 +1,5 @@
 
-This directory includes the ClamAv configuration
+This directory includes the ClamAV configuration and virus definitions
 
 All changes on the files in this directory require a restart of the container in order to get active.
 
