@@ -9,6 +9,7 @@ cd /tmp
 
 # Clone and install ssdeep package
 echo "Install ssdeep package"
+SSDEEP_VERSION=$(curl https://api.github.com/repos/ssdeep-project/ssdeep/releases/latest -s | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed 's/release-//')
 wget --quiet https://github.com/ssdeep-project/ssdeep/releases/download/release-${SSDEEP_VERSION}/ssdeep-${SSDEEP_VERSION}.tar.gz
 tar -xzf ssdeep-${SSDEEP_VERSION}.tar.gz
 cd ssdeep-${SSDEEP_VERSION}
@@ -60,9 +61,6 @@ cd "/tmp/ModSecurity"
 ./configure --with-lmdb
 make -j${CPU_CORES}
 make install
-rm -Rf /tmp/ModSecurity \
-	/usr/local/modsecurity/lib/libmodsecurity.a \
-	/usr/local/modsecurity/lib/libmodsecurity.la
 cd /
 
 
