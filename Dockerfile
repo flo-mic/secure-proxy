@@ -1,12 +1,14 @@
 
 # Main image
-FROM alpine:3.13
+FROM alpine:latest
 
 # Software versions to use
 ARG NGINX_VERSION=1.18.0
 ARG MODSECURITY_VERSION=3.0.4
 ARG OWASP_VERSION=3.3
-ARG SSDEEP_VERSION=2.14.1
+
+# Variable to specify if running on GitHub Action or localy (prevent GitHub action resource issues)
+ARG RUNS_ON_GITHUB=false
 
 LABEL maintainer="flo-mic" \
    description="Secure web application gateway"

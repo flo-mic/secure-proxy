@@ -5,7 +5,12 @@ set -e
 set -o pipefail
 
 # Get available cpu cores to improve compile time
-CPU_CORES=$(nproc --all)
+if [[ $RUNS_ON_GITHUB = false ]]; then
+    CPU_CORES=$(nproc --all)
+else
+    CPU_CORES=1
+fi
+export CPU_CORES
 
 # Install build dependencies
 echo "**** install build packages ****"
