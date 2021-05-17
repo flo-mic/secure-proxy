@@ -1,0 +1,32 @@
+#!/usr/bin/with-contenv bash
+
+# Create clamav socket directory if not exists
+mkdir -p /run/clamav
+chown clamav:clamav /run/clamav
+
+# Create clamav log directory
+mkdir -p /config/logs/clamav
+touch /config/logs/clamav/freshclam.log
+touch /config/logs/clamav/clamav.log
+
+# Create symlink for clamav log in case a deamon uses the default directory
+rm -rf /var/log/clamav
+ln -s /config/logs/clamav /var/log/clamav
+chown clamav:clamav /var/log/clamav/*.*
+sleep 1
+
+# Create symlink for clamav config files and AV definitions
+mkdir -p /config/clamav/definitions
+rm -rf /etc/clamav/clamd.conf
+rm -rf /etc/clamav/freshclam.conf
+rm -rf /var/lib/clamav
+ln -s /config/clamav/clamd.conf /etc/clamav/clamd.conf
+ln -s /config/clamav/freshclam.conf /etc/clamav/freshclam.conf
+ln -s /config/clamav/definitions /var/lib/clamav
+chown clamav:clamav /var/lib/clamav
+
+# Force clamav definition update if no definitions exist (first start)
+if [ ! -f /config/clamav/definitions/daily.cld ]; then
+    echo "**** Clamav definitions missing, downloading them. This will some time... ****"
+    freshclam
+fi

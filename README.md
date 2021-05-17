@@ -1,16 +1,15 @@
-# This project is still work in progress
-
-
 # swag
 
-Secure web application gateway based on nginx with integrated web application firewall, Let's Encrypt, fail2ban and a lot more 😉 It is designed as a pure reverse proxy which faces to the public internet. It can also server static files which you lace inside the foler `/config/www`. Of course you can also use this internally but you will not be able to use Let's Encrypt as this requires a http challenge at the moment. The SWAG is designed to secure your application and the data you host on them. It comes with serval well known open source security features like fail2ban ip blocking etc.
+Secure web application gateway based on nginx with integrated web application firewall, Let's Encrypt, fail2ban and a lot more 😉 It is designed as a pure reverse proxy which faces to the public internet. It can also server static files which you place inside the foler `/config/www`. It has an integrated Lua support. You can also use this internally but you will not be able to use Let's Encrypt as this requires a http challenge at the moment. The SWAG is designed to secure your application and the data you host on them. It comes with serval well known open source security features like fail2ban ip blocking etc.
 
 
 # Integrated features
 
 - Let's Encrypt support
 - Modern web application firewall with ModSecurity and OWASP Core Rule Set
-- Anti DDOS enabled with nginx rate limits
+- CalmAV Virus, Trojan and Maleware scanner for all uploaded files
+- Improved ClamAA signatures to protect web applications like PHP pages
+- Anti DDOS enabled
 - Automatic ban by strange behavior of clients
 - Prevent SQL and XSS Injection
 - Blocks bad bots, user agents, spam referrer, adware, robots and known bad IP addresses
@@ -33,7 +32,7 @@ I need to mention that a lot of the listed security features are part of the "[U
 # Features in pipeline
 
 - GeoIP blocking
-- CalmAV Virus, Trojan and maleware scanner
+- CalmAV file system scan. Needed Environment variables: Scan-Interval, Scan-Directories, Scan-Action, E-Mail-Report
 - Single Sign On integration
 
 # Documentation

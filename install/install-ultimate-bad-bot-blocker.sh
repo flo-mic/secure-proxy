@@ -5,7 +5,7 @@ set -e
 set -o pipefail
 
 # Install ultimate bad bot blocker
-echo "**** Installing ultimate bad bot blocker ****"
+echo "Installing ultimate bad bot blocker"
 
 # Create needed folders
 mkdir -p /default/nginx/bots.d

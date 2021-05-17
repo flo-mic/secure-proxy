@@ -4,5 +4,5 @@ This directory includes the fail2ban configuration
 All changes on the files in this directory require a restart of the container in order to get active.
 
 You can add custom filters and actions to the folders "action.d" and "filter.d". They will be included if you enable the related filter/action in the "jail.local" file.
-
+Do not edit the .conf files inside the actions.d and filter.d directory. Make changes only on .local files with simmilar name to the .conf files.
 Please do not add files to the root of this folder, as they will be ignored during the restart and will not bew copied to the fail2ban folder

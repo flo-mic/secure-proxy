@@ -3,7 +3,11 @@
 # fix potentional permission issues
 chown -R swag:swag /config
 chmod -R 0644 /etc/logrotate.d
-chmod -R +r /config/logs
+chmod -R +wr /config/logs
 mkdir -p /var/lib/nginx/cache
 chown -R swag:swag /var/lib/nginx/cache
 chmod 677 /var/lib/nginx/cache/
+chown clamav:clamav /run/clamav
+chown clamav:clamav /var/lib/clamav
+chown clamav:clamav /var/log/clamav/*.*
+

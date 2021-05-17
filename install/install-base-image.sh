@@ -5,20 +5,19 @@ set -e
 set -o pipefail
 
 
-# Install base components
-echo "**** Install base components ****"
-apk add --no-cache \
-	bash \
-	coreutils \
-	curl \
-    nano \
-	shadow
+# Download S6 Overlay files
+if [[ ${ARCH} = "x86_64" ]]; then
+    wget --quiet https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-amd64-installer -O /tmp/s6-overlay-installer
+else
+    wget --quiet https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-arm-installer -O /tmp/s6-overlay-installer
+fi
 
 # Install S6 overlay
 echo "**** Install S6 overlay ****"
-chmod +x /tmp/s6-overlay-amd64-installer
-/tmp/s6-overlay-amd64-installer /
-rm /tmp/s6-overlay-amd64-installer
+chmod +x /tmp/s6-overlay-installer
+/tmp/s6-overlay-installer /
+rm /tmp/s6-overlay-installer
+
 
 # Create user
 echo "**** create user and make folders ****"

@@ -4,7 +4,7 @@
 LOG_FILE=/config/logs/nginx/reload.log
 
 # Listens for file changes on nginx config files
-inotifywait -rq --event modify,move,create,delete /config/nginx |
+inotifywait -rq --event close_write,modify,moved_from,moved_to,create,delete /config/nginx |
   while read -r path action file; do
     if [[ "$file" =~ .*conf$ ]] || [[ "$file" =~ .*pem$ ]] || [[ "$path" =~ .*/sites-available/$ ]]; then
       if /usr/sbin/nginx -c /config/nginx/nginx.conf -t 2>&1 | tee -a $LOG_FILE; then
