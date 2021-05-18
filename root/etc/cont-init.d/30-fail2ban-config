@@ -4,6 +4,9 @@
 mkdir -p /config/logs/fail2ban
 mkdir -p /var/run/fail2ban
 
+# make sure all environment variables are lower case
+FAIL2BAN_MAIL_REPORT=$(echo "${FAIL2BAN_MAIL_REPORT,,}")
+
 # Update default action filter files as they should not contain user specific configuration
 cp /default/fail2ban/action.d/*.conf /config/fail2ban/action.d/
 cp /default/fail2ban/filter.d/*.conf /config/fail2ban/filter.d/
@@ -27,13 +30,8 @@ if [[ ! -f /config/logs/fail2ban/fail2ban.log ]]; then
 	touch /config/logs/fail2ban/fail2ban.log
 fi
 
-# Init repeat offenders jail internal db file (ultimte bad bots blocker addon)
-touch /etc/fail2ban/nginx.repeatoffender
-chmod +x /etc/fail2ban/nginx.repeatoffender
-
-
 # Configure mail settings if available
-if [[ -n $SMTP_SERVER ]] && [[ -n $SMTP_SENDER_MAIL ]] && [[ -n $SMTP_SENDER_NAME ]] && [[ -n $SMTP_RECEIVER ]]; then
+if [[ ${FAIL2BAN_MAIL_REPORT} = "enabled" ]] && [[ -n $SMTP_SERVER ]] && [[ -n $SMTP_SENDER_MAIL ]] && [[ -n $SMTP_SENDER_NAME ]] && [[ -n $SMTP_RECEIVER ]]; then
   echo "**** Enabling fail2ban mail notifications ****"
   
   ORIGINAL_MAIL_ACTION="#action = %(action_mw)s\[from=<sendermail>, password=<secretpassword>, destination=<destinationmail>, sendername=<sendername>, smtpserver=<smtpserver>\]"

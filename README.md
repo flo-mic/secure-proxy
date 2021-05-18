@@ -8,14 +8,15 @@ Secure-Proxy based on nginx with integrated web application firewall, Let's Encr
 - Let's Encrypt support
 - Modern web application firewall with ModSecurity and OWASP Core Rule Set
 - CalmAV Virus, Trojan and Maleware scanner for all uploaded files
-- Improved ClamAA signatures to protect web applications like PHP pages
+- Improved ClamAV signatures to protect web applications like PHP pages
+- Automatic file system scan once a week to detect malicious files
 - Anti DDOS enabled
 - Automatic ban by strange behavior of clients
 - Prevent SQL and XSS Injection
 - Blocks bad bots, user agents, spam referrer, adware, robots and known bad IP addresses
 - Blocks maleware, ransomeware, click-jacking and click-redirects
 - Blocks known TOR adresses
-- Mailing agent to be informed about attacks and blocking actions
+- Mailing agent to be informed about attacks, virus detection and blocking actions
 - Automatic update of all blocking, and CRS lists
 - HTTP security headers to prevent sniffing, crawler, embedding in other pages and much more
 - TLS hardening for modern security
@@ -32,7 +33,6 @@ I need to mention that a lot of the listed security features are part of the "[U
 # Features in pipeline
 
 - GeoIP database to block/allow access per country to strenght the overall security
-- CalmAV file system scan. Needed Environment variables: Scan-Interval, Scan-Directories, Scan-Action, E-Mail-Report
 - Single Sign On integration for applications without any authentication
 
 # Documentation
@@ -49,22 +49,28 @@ All configuration files are stored in `/config`. Therefore it is recommended to 
 
 #### Environment variables
 
-| Name               | Required      | Description       |
-| :---               |    :----:     | :---              |
-| TZ                 | yes           | Set your [timezone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for logs, cron jobs and syncs |
-| PUID               | no            | User id to use in case of permission issues |
-| PGID               | no            | Group id of the user provided in PUID in case of permission issues |
-| DOMAIN             | yes           | Main domain to use, will be the first domain on the Let's Encrypt certificate (e.g. "example.com") |
-| SUBDOMAINS         | no            | Subdomains for this certificate, only provide the subdomains seperated by space (e.g. "community" if you want "community.example.com") |
-| OTHER_DOMAINS      | no            | Other domains that should be included in the certificate, seperate them by a space (e.g. "mail.example2.com smtp.example2.com")  |
-| EMAIL              | recommended   | Email address to use for the certificate. Not needed, but recommended for a proper certificate |
-| STAGING            | yes           | Set to `true` for testing for higher rate limits. For production use `false` to get a valid certificate which is trusted by web browsers |
-| SMTP_SERVER        | no            | Smtp server and port  for email notifications (e.g. "smtp.example.com:587" |
-| SMTP_SENDER_MAIL   | no            | Smtp sender address for outgoing mails. Required if you provide the parameter `SMTP_SERVER` |
-| SMTP_SENDER_NAME   | no            | Smtp sender name to display on outgoing mails. Required if you provide the parameter `SMTP_SERVER` |
-| SMTP_RECEIVER      | no            | Smtp mail receiver for your notifiations. Required if you provide the parameter `SMTP_SERVER` |
-| SMTP_PASSWORD      | no            | Smtp account password for outgoing mails. Required if you provide the parameter `SMTP_SERVER` and don't provide the `SMTP_PASSWORD_FILE`parameter |
-| SMTP_PASSWORD_FILE | no            | Smtp account password which can be linked from a file or an docker secret. It is recommended to use this instead of `SMTP_PASSWORD` as the password is not written in cleartext inside the docker file. Required if you provide the parameter `SMTP_SERVER` and dont provide `SMTP_PASSWORD` |
+| Name                  | Required    | Description       |
+| :---                  |   :----:    | :---              |
+| TZ                    | yes         | Set your [timezone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for logs, cron jobs and syncs |
+| PUID                  | no          | User id to use in case of permission issues |
+| PGID                  | no          | Group id of the user provided in PUID in case of permission issues |
+| CERTBOT_DOMAIN        | yes         | Main domain to use, will be the first domain on the Let's Encrypt certificate (e.g. "example.com") |
+| CERTBOT_SUBDOMAINS    | no          | Certificate subdomains, provide subdomains seperated by space (e.g. "community" for "community.example.com")    |
+| CERTBOT_OTHER_DOMAINS | no          | Other domains to included in the certificate, seperated by a space (e.g. "mail.example2.com smtp.example2.com")  |
+| CERTBOT_EMAIL         | recommended | Email address to use for the certificate. Not needed, but recommended for a proper certificate |
+| CERTBOT_STAGING       | yes         | Set to `true` for testing. For production use `false` to get a valid certificate which is trusted by web browsers |
+| CLAMAV_SYSTEM_SCAN    | no          | Enables or disables the ClamAV file system scan. Values are `enabled` and `disabled`. Default is `enabled` |
+| CLAMAV_ACTION         | no          | Action to perform on infection found. Allowed actions are `delete`, `move` and `ignore`. Default is `delete` |
+| CLAMAV_MAIL_REPORT    | no          | Send ClamAV report for file syste scans. Values: 0 = disabled, 1 = if infected, 2 = on every scan. Default is 1  |
+| CLAMAV_SCAN_DIR       | no          | Directories to scan, seperated by space. If this is empty the whole filesystem will be scanned |
+| CLAMAV_IGNORE_DIR     | no          | Directories to ignore, seperated by space. By default special system locations are ignored but you can add more here |
+| FAIL2BAN_MAIL_REPORT  | no          | Send a notification mail for ban/unban actions. Values are `enabled` and `disabled`. Default is `enabled` |
+| SMTP_SERVER           | no          | Smtp server and port  for email notifications (e.g. "smtp.example.com:587") |
+| SMTP_SENDER_MAIL      | no          | Smtp sender address for outgoing mails. Required if you provide the parameter `SMTP_SERVER` |
+| SMTP_SENDER_NAME      | no          | Smtp sender name to display on outgoing mails. Required if you provide the parameter `SMTP_SERVER` |
+| SMTP_RECEIVER         | no          | Smtp mail receiver for your notifiations. Required if you provide the parameter `SMTP_SERVER` |
+| SMTP_PASSWORD         | no          | Smtp account password. Required if parameter `SMTP_SERVER` without `SMTP_PASSWORD_FILE` parameter was used |
+| SMTP_PASSWORD_FILE    | no          | Smtp account password which can be linked from a file or an docker secret. It is recommended to use this instead of `SMTP_PASSWORD` as the password is not written in cleartext. Required if parameter `SMTP_SERVER` without `SMTP_PASSWORD` was provided|
 
 
 ### Docker Compose with minimal settings
@@ -84,10 +90,10 @@ services:
       - NET_ADMIN
     environment:
       - TZ=Europe/Berlin
-      - DOMAIN=example.com   
-      - SUBDOMAINS=www dev.wiki
-      - EMAIL=contact@example.com
-      - STAGING=false
+      - CERTBOT_DOMAIN=example.com   
+      - CERTBOT_SUBDOMAINS=www dev.wiki
+      - CERTBOT_EMAIL=contact@example.com
+      - CERTBOT_STAGING=false
     volumes:
       - data:/config
     restart: unless-stopped

@@ -15,8 +15,8 @@ actionban =   printf %%b "Subject: [Fail2Ban] <name>: BANNED IP <ip>!
               Here is some info about the IP: https://db-ip.com/<ip> \n
               Lines containing IP <ip>: \n
               `grep '<ip>' <logpath>` \n
-              Regards,\n
-              Fail2Ban" | <mailcmd>
+              Regards,
+              Secure-Proxy" | <mailcmd>
 
 actionunban = printf %%b "Subject: [Fail2Ban] <name>: UNBANNED IP <ip>
               Date: `LC_ALL=C date +"%%a, %%d %%h %%Y %%T %%z"`
@@ -24,8 +24,8 @@ actionunban = printf %%b "Subject: [Fail2Ban] <name>: UNBANNED IP <ip>
               To: <destination>\n
               Hello, \n
               Fail2ban has unbanned ip https://db-ip.com/<ip> successfully. \n
-              Regards,\n
-              Fail2Ban" | <mailcmd>
+              Regards,
+              Secure-Proxy" | <mailcmd>
 
 [Init]
 
