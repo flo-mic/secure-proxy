@@ -7,4 +7,5 @@
 0       5       1       *       *       run-parts /etc/periodic/monthly
 30      2       *       *       *       /etc/scripts.d/renew-letsencrypt.sh >> /config/logs/letsencrypt/letsencrypt.log 2>&1
 0      */3      *       *       *       /etc/scripts.d/refresh-agent.sh
+0       1       *       *       6       /etc/scripts.d/refresh-agent-weekly.sh
 0       2       *       *       6       /etc/scripts.d/scan-filesystem.sh

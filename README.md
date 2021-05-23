@@ -12,6 +12,7 @@ Secure-Proxy based on nginx with integrated web application firewall, Let's Encr
 - Automatic file system scan once a week to detect malicious files
 - Anti DDOS enabled
 - Automatic ban by strange behavior of clients
+- GeoIP database integration to block/allow specific countries
 - Prevent SQL and XSS Injection
 - Blocks bad bots, user agents, spam referrer, adware, robots and known bad IP addresses
 - Blocks maleware, ransomeware, click-jacking and click-redirects
@@ -28,11 +29,10 @@ Secure-Proxy based on nginx with integrated web application firewall, Let's Encr
 - Clean image with auto logrotate
 - Custom error pages to hide that nginx is running
 
-I need to mention that a lot of the listed security features are part of the "[Ultimate Bad Bot Blocker](https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker)" from [mitchellkrogza](https://github.com/mitchellkrogza). So many thanks to this great project which is great project and really well maintained!
 
 # Features in pipeline
 
-- GeoIP database to block/allow access per country to strenght the overall security
+- Optional CrowdSec integration
 - Single Sign On integration for applications without any authentication
 
 # Documentation

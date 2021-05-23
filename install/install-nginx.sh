@@ -115,4 +115,4 @@ cd "/tmp/nginx-$NGINX_VERSION"
 make -j${CPU_CORES}
 make install
 
-cd /
+cd /tmp

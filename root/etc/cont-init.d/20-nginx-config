@@ -34,5 +34,7 @@ fi
 
 # Download/update bad bot, blocking and serval other lists
 chmod +x /etc/scripts.d/refresh-agent.sh
+chmod +x /etc/scripts.d/refresh-agent-weekly.sh
 /etc/scripts.d/refresh-agent.sh
+/etc/scripts.d/refresh-agent-weekly.sh
 sleep 1

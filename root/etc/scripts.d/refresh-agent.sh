@@ -6,7 +6,8 @@ mkdir -p /tmp/refresh-agent
 
 LOG_FILE=/config/logs/refresh-agent/refresh-agent.log
 
-echo "**** Refreshing CRS, bad bot, blocking lists, etc... ****" | tee -a $LOG_FILE
+echo "**** Refreshing CRS, bad bot, blocking lists, etc... ****" >> tee -a $LOG_FILE
+
 
 # Download current robots list to webroot as there is no compare needed
 echo "$(date "+%F %T") Updating /config/www/robots.txt." >> $LOG_FILE

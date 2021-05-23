@@ -61,7 +61,7 @@ cd "/tmp/ModSecurity"
 ./configure --with-lmdb
 make -j${CPU_CORES}
 make install
-cd /
+cd /tmp
 
 
 # Get OWASP Core rule set
