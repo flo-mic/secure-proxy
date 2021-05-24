@@ -1,0 +1,37 @@
+#!/usr/bin/with-contenv bash
+
+# make sure all environment variables are lower case
+CROWDSEC_URL=$(echo "${CROWDSEC_URL,,}")
+CROWDSEC_API_TOKEN=$(echo "${CROWDSEC_API_TOKEN,,}")
+CROWDSEC_API_TOKEN_FILE=$(echo "${CROWDSEC_API_TOKEN_FILE,,}")
+
+# If crowdsec url and configuration is not available skip config
+if [[ -z $CROWDSEC_URL ]]; then
+    exit 0
+elif [[ -z $CROWDSEC_API_TOKEN ]] && [[ -z $CROWDSEC_API_TOKEN_FILE ]]; then
+    exit 0
+fi
+
+# Configure Crowdsec api url
+CROWDSEC_URL=$(echo $CROWDSEC_URL | sed -e 's/\//\\\//g')
+sed -i "s/^API_URL=.*/API_URL=${CROWDSEC_URL}/" /usr/local/lib/lua/crowdsec/crowdsec.conf
+
+
+# Get apikey
+if [[ -n $CROWDSEC_API_TOKEN_FILE ]]; then
+    if [ -s "$CROWDSEC_API_TOKEN_FILE" ]; then
+		$CROWDSEC_API_TOKEN="$(head -n 1 $CROWDSEC_API_TOKEN_FILE)"		
+	else
+		echo "ERROR: Crowdsec API Token file does not exist or is empty. Can not enable crowdsec."
+	fi;
+fi
+
+# Check if api token is available	
+if [[ -n $CROWDSEC_API_TOKEN ]]; then
+
+    # Remove leading and ending (") from vartiable
+    CROWDSEC_API_TOKEN=$(echo "${CROWDSEC_API_TOKEN//\"}")
+
+    # Add new api key for lua bouncer
+    sed -i "s/^API_KEY=.*/API_KEY=${CROWDSEC_API_TOKEN}/" /usr/local/lib/lua/crowdsec/crowdsec.conf
+fi

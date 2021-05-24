@@ -27,11 +27,5 @@ mkdir -p /usr/share/GeoIP
 mv -f /tmp/geoip.mmdb /usr/share/GeoIP/geoip.mmdb
 
 
-# Update current crowdsec hub configurations and parsers if newer versions are available
-echo "$(date "+%F %T") Updating crowdsec configuration files and parsers." >> $LOG_FILE
-cscli hub update 2>&1 | tee -a $LOG_FILE
-cscli hub upgrade 2>&1 | tee -a $LOG_FILE
-
-
 # Remove temporary files
 rm -r /tmp/refresh-agent

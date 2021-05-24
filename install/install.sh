@@ -70,12 +70,20 @@ apk add --no-cache --upgrade \
 ./tmp/secproxy-installer/install-base-image.sh
 
 
+# Install Lua
+./tmp/secproxy-installer/install-lua.sh
+
+
 # Install Modsecurity
 ./tmp/secproxy-installer/install-modsecurity.sh
 
 
 # Install Nginx
 ./tmp/secproxy-installer/install-nginx.sh
+
+
+# Install crowdsec
+./tmp/secproxy-installer/install-crowdsec.sh
 
 
 # Install ultimate-bad-bot-blocker
