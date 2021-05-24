@@ -297,3 +297,4 @@ map $geoip2_data_country_code $allowed_country {
 - OWASP Core rule set https://github.com/coreruleset/coreruleset
 - ClamAV antivirus https://www.clamav.net
 - R-FX Networks LMD AV definitions for Webserver https://www.rfxn.com/projects/linux-malware-detect
+- Firehol abusers list https://iplists.firehol.org/?ipset=firehol_abusers_30d
