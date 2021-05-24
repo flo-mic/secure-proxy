@@ -115,4 +115,8 @@ cd "/tmp/nginx-$NGINX_VERSION"
 make -j${CPU_CORES}
 make install
 
+# copy mime.types to default location
+mkdir -p /default/nginx
+mv /etc/nginx/mime.types /default/nginx/mime.types
+
 cd /tmp

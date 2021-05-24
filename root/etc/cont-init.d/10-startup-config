@@ -28,6 +28,11 @@ chown secproxy:secproxy /config
 chown secproxy:secproxy /default
 
 
+# make sure all environment variables are lower case and properly formated
+UPDATE_CONFIGURATION=$(echo "${UPDATE_CONFIGURATION,,}")
+UPDATE_CONFIGURATION=$(echo "${UPDATE_CONFIGURATION}" | sed "s/\"//g")
+
+
 # Copy template files if not exist
 for i in $(find /default -type f)
 do
@@ -37,8 +42,14 @@ do
 	# Create directory if not exists
 	mkdir -p $CONFIG_DIR
 
-	# Copy file if not exists
-	if [[ ! -f $CONFIG_PATH ]]; then
+	# Check if automatic update was configured
+	if [[ ${UPDATE_CONFIGURATION} = "enabled" ]]; then
+		# If automatic update do not overwrite bots.d and sites-available as this impacts the user configuration
+		if [[ ${CONFIG_PATH} != "/config/nginx/sites-available/"* ]] && [[ ${CONFIG_PATH} != "/config/nginx/bots.d/"* ]]; then
+			cp $i $CONFIG_PATH
+		fi
+	elif [[ ! -f $CONFIG_PATH ]]; then
+		# Copy only new files if automatic update was disabled
 		cp $i $CONFIG_PATH
 	fi
 done

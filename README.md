@@ -24,28 +24,30 @@ Secure-Proxy based on nginx with integrated web application firewall, Let's Encr
 
 - Let's Encrypt support
 - Modern web application firewall with ModSecurity and OWASP Core Rule Set
-- Crowdsec clolud based protection system
-- CalmAV Virus, Trojan and Maleware scanner for all uploaded files
-- Improved ClamAV signatures to protect web applications like PHP pages
-- Automatic file system scan once a week to detect malicious files
+- Crowdsec cloud based protection system
+- CalmAV suspicious file scan for all uploaded files
 - Anti DDOS enabled
+- Block vulnarability scanners
+- Prevent SQL and XSS Injection
+- Blocks bad-bots, user agents, IP addresses, TOR endpoints and a lot more.
+- Automatic update of all blocking, and CRS lists
 - Automatic ban by strange behavior
 - GeoIP database integration to block/allow specific countries
-- Prevent SQL and XSS Injection
-- Blocks bad bots, user agents, spam referrer and robots
-- Blocks maleware, ransomeware, click-jacking and click-redirects
-- Blocks bad IP addresses and known TOR endpoints
-- Mailing agent to be informed about attacks, virus detection and blocking actions
-- Automatic update of all blocking, and CRS lists
-- HTTP security headers to prevent sniffing, crawler, embedding in other pages and much more
-- TLS hardening for modern security
-- Nginx leak prevention
-- Nginx without privileged root permissions
-- Docker dns resolving
-- Improved performance with brotli and server tweakings
 - Lua Module integrated
-- Clean image with auto logrotate
+- HTTP security headers to prevent click-jacking, sniffing, crawler, etc...
+- TLS hardening for modern security
+- Nginx leak prevention an unprivileged user
+- Improved performance with brotli and server tweakings
+- Mailing agent to be informed about attacks, virus detection and blocking actions
+- Automatic file system scan once a week to detect malicious files
 - Custom error pages to hide that nginx is running
+- Docker dns resolving
+- Clean image with auto logrotate
+
+# Features in pipeline
+- Cookie challenge with encrypted cookies to prevent bots, something like https://github.com/kyprizel/testcookie-nginx-module
+- HTTPv3 support
+
 
 <br/>
 <a name="Documentation"/>
@@ -89,6 +91,7 @@ All configuration files are stored in `/config`. Therefore it is recommended to 
 | SMTP_RECEIVER           | no          | Smtp mail receiver for your notifiations. Required if you provide the parameter `SMTP_SERVER` |
 | SMTP_PASSWORD           | no          | Smtp account password. Required if parameter `SMTP_SERVER` without `SMTP_PASSWORD_FILE` parameter was used |
 | SMTP_PASSWORD_FILE      | no          | Smtp account password which can be linked from a file or an docker secret. It is recommended to use this instead of `SMTP_PASSWORD` as the password is not written in cleartext. Required if parameter `SMTP_SERVER` without `SMTP_PASSWORD` was provided|
+| UPDATE_CONFIGURATION    | no          | Configure automatic updates for configuration files. By default the container informs you about config updates in the container log on startup. You need to remove the related config files and restart the container to get the latest updates. To configure automatic updates set this variable to `enabled`. This will not delete your configured sites, it will just update the configuration files.  |
 
 <br/> 
 <a name="Docker-Compose-minimal-Setup"/>

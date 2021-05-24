@@ -38,8 +38,8 @@ chmod +x /etc/scripts.d/update-ngxblocker
 
 # Update ultimate-bad-bot-blocker
 ./etc/scripts.d/update-ngxblocker \
-    -b /default/nginx/bots.d \
-    -c /default/nginx/conf.d \
+    -b /config/nginx/bots.d \
+    -c /config/nginx/conf.d \
     -i /etc/scripts.d/install-ngxblocker \
     >> $LOG_FILE 2>&1
 
