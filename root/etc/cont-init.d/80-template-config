@@ -17,7 +17,7 @@ done
 sleep 1
 
 # Global ignore list for template updates as they might be updated from an refresh script on regular basis anyway
-TEMPLATE_IGNORE_ARRAY={"/default/nginx/conf.d/globalblacklist.conf"}
+TEMPLATE_IGNORE_ARRAY=("/default/nginx/conf.d/globalblacklist.conf" "/default/nginx/conf.d/deny-tor-proxies.conf" "/default/nginx/conf.d/deny-firehol-abuser-30d.conf")
 
 # Check for configuration updates that need to be performed from the user manually to prevent any breaking changes
 for i in $(find /default/ -type f)

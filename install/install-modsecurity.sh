@@ -28,7 +28,7 @@ git -C /tmp/ModSecurity submodule update --init --recursive --quiet
 # Install Modsecurity
 cd "/tmp/ModSecurity"
 ./build.sh
-./configure --with-lmdb
+./configure --with-lmdb --disable-doxygen-doc
 make -j${CPU_CORES}
 make install
 cd /tmp

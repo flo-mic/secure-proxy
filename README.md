@@ -15,7 +15,7 @@
 
 # Secure-Proxy
 
-Secure-Proxy based on nginx with integrated web application firewall, Let's Encrypt, fail2ban, Crowdsec, ClamAV upload scan and a lot more 😉. It is designed as a pure reverse proxy which faces to the public internet. It can also server static files which you place inside the foler `/config/www`. It has an integrated Openresty Lua support. You can also use this internally but you will not be able to use Let's Encrypt as this requires a http challenge at the moment. The proxy server is designed to secure your application and the data you host on them. It comes with serval well known open source security features like fail2ban ip blocking, ClamAV, etc.
+Secure-Proxy based on nginx with integrated web application firewall, Let's Encrypt, fail2ban, Crowdsec, ClamAV upload scan and a lot more 😉. It is designed as a pure reverse proxy which faces to the public internet. It can also server static files which you place inside the folder `/config/www`. It has an integrated Openresty Lua support. You can also use this internally but you will not be able to use Let's Encrypt as this requires a http challenge at the moment. The proxy server is designed to secure your application and the data you host on them. It comes with serval well known open source security features like fail2ban ip blocking, ClamAV, etc.
 
 <br/>
 <a name="Features"/>
@@ -36,8 +36,8 @@ Secure-Proxy based on nginx with integrated web application firewall, Let's Encr
 - Lua Module integrated
 - HTTP security headers to prevent click-jacking, sniffing, crawler, etc...
 - TLS hardening for modern security
-- Nginx leak prevention an unprivileged user
-- Improved performance with brotli and server tweakings
+- Nginx leak prevention as non root user
+- Improved performance with brotli and server tweaking's
 - Mailing agent to be informed about attacks, virus detection and blocking actions
 - Automatic file system scan once a week to detect malicious files
 - Custom error pages to hide that nginx is running
@@ -45,7 +45,7 @@ Secure-Proxy based on nginx with integrated web application firewall, Let's Encr
 - Clean image with auto logrotate
 
 # Features in pipeline
-- Cookie challenge with encrypted cookies to prevent bots, something like https://github.com/kyprizel/testcookie-nginx-module
+- Cookie challenge with encrypted cookies to prevent bots, something like https://github.com/kyprizel/testcookie-nginx-module or https://medium.com/secjuice/detecting-human-users-is-there-a-way-to-block-enumeration-fuzz-or-web-scan-14102a92f10b
 - HTTPv3 support
 
 
@@ -91,7 +91,7 @@ All configuration files are stored in `/config`. Therefore it is recommended to 
 | SMTP_RECEIVER           | no          | Smtp mail receiver for your notifiations. Required if you provide the parameter `SMTP_SERVER` |
 | SMTP_PASSWORD           | no          | Smtp account password. Required if parameter `SMTP_SERVER` without `SMTP_PASSWORD_FILE` parameter was used |
 | SMTP_PASSWORD_FILE      | no          | Smtp account password which can be linked from a file or an docker secret. It is recommended to use this instead of `SMTP_PASSWORD` as the password is not written in cleartext. Required if parameter `SMTP_SERVER` without `SMTP_PASSWORD` was provided|
-| UPDATE_CONFIGURATION    | no          | Configure automatic updates for configuration files. By default the container informs you about config updates in the container log on startup. You need to remove the related config files and restart the container to get the latest updates. To configure automatic updates set this variable to `enabled`. This will not delete your configured sites, it will just update the configuration files.  |
+| UPDATE_CONFIGURATION    | no          | Configure automatic updates for configuration files. By default the container informs you about config updates in the container log on startup. You need to remove the related config files and restart the container to get the latest updates. To configure automatic updates set this variable to `enabled`. This will not delete your configured sites, it will just update the configuration files. Default is `disabled` |
 
 <br/> 
 <a name="Docker-Compose-minimal-Setup"/>
@@ -137,7 +137,7 @@ volumes:
 
 ## Docker-Compose setup with Crowdsec
 
-Crowdsec is an online protection platform which shares bad ip's, attacks and other suspicious with the whole community. If someone faces an attack this attack can be blocked immediately. Also the attack details are shared with the whole community and everyone gets a benefit from this knowledge. Crowdsec is tracking all activities inside the nginx log files and can provide prevention actions like blocking or forcing a captcha request immediately. As this is a cloud based protection system it will share some details from your environment whith the whole community. The shared details are a timestamp, ip of the attacker and attack details if an suspicious behavior is detected. 
+Crowdsec is an online protection platform which shares bad ip's, attacks and other suspicious with the whole community. If someone faces an attack this attack can be blocked immediately. Also the attack details are shared with the whole community and everyone gets a benefit from this knowledge. Crowdsec is tracking all activities inside the nginx log files and can provide prevention actions like blocking or forcing a captcha request immediately. As this is a cloud based protection system it will share some details from your environment with the whole community. The shared details are a timestamp, ip of the attacker and attack details if an suspicious behavior is detected. 
 
 To get this working with the secure proxy you need to perform the following steps:
 
@@ -221,7 +221,7 @@ labels:
 
 ## Nginx configuration
 
-The nginx configuration of the secure-proxy is done with configuration files as you may know from existing nginx setups. There is no integration of environment variables as this would be to complex to realize and the amount of nginx configuration options is just to big. This image comes with a preconfigured nginx which requires modern security settings on all end devices. So old devices which do not use TLS 1.3 are not able to connect. If this is to strict for your use case you can change this settings in the srelated ssl config file.
+The nginx configuration of the secure-proxy is done with configuration files as you may know from existing nginx setups. There is no integration of environment variables as this would be to complex to realize and the amount of nginx configuration options is just to big. This image comes with a preconfigured nginx which requires modern security settings on all end devices. So old devices which do not use TLS 1.3 are not able to connect. If this is to strict for your use case you can change this settings in the related ssl config file.
 
 ### Nginx config locations:
 
@@ -240,9 +240,9 @@ The nginx configuration of the secure-proxy is done with configuration files as 
 
 ## GeoIP configuration
 
-This docker container comes with a Geo-IP database which allows to block specific countries or even better only allow certain countries to block unwanted traffic. If you know from which yountries your users are connecting it is recommended to allow only this countries. If you want to open your webserver but still want to block countires which are known for suspicious activities, you can also block specific countries. This is for example useful if you do not want to be attacked by e.g. a chinese or russian hacker group which allways connects from a specific chinese/russian ip (they exist, trust me 😉), you can block all traffic from this countries to avoid such attacks. 
+This docker container comes with a Geo-IP database which allows to block specific countries or even better only allow certain countries to block unwanted traffic. If you know from which countries your users are connecting it is recommended to allow only this countries. If you want to open your webserver but still want to block countries which are known for suspicious activities, you can also block specific countries. This is for example useful if you do not want to be attacked by e.g. a chinese or russian hacker group which allways connects from a specific chinese/russian ip (they exist, trust me 😉), you can block all traffic from this countries to avoid such attacks. 
 
-To block such attacks you just need to configure the geoip settings in the related configuration file. The file is located under `/config/nginx/conf.d/geoip.conf`. In this documentation we will show two different settings, one to allow specific countries only and one to block specific countries only. You can addapt the configurations as needed. Just make sure to use the ISO 2 letter country codes inside the file which can be found here: https://www.iban.com/country-codes
+To block such attacks you just need to configure the geoip settings in the related configuration file. The file is located under `/config/nginx/conf.d/geoip.conf`. In this documentation we will show two different settings, one to allow specific countries only and one to block specific countries only. You can adapt the configurations as needed. Just make sure to use the ISO 2 letter country codes inside the file which can be found here: https://www.iban.com/country-codes
 
 ### Allow only requests from e.g. Germany, Austria and Switzerland
 ```

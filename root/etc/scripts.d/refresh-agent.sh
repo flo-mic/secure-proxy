@@ -16,6 +16,7 @@ curl -sL https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/blob/m
 
 
 # download list of active tor adresses
+cp /default/nginx/conf.d/deny-tor-proxies.conf /tmp/refresh-agent/deny-tor-proxies.conf
 curl -sL https://check.torproject.org/exit-addresses | grep ExitAddress | cut -d ' ' -f 2 | sed "s/^/deny /g; s/$/;/g" >> /tmp/refresh-agent/deny-tor-proxies.conf
 if ! cmp /tmp/refresh-agent/deny-tor-proxies.conf /config/nginx/conf.d/deny-tor-proxies.conf >/dev/null 2>&1
 then
@@ -23,12 +24,13 @@ then
   mv -f /tmp/refresh-agent/deny-tor-proxies.conf /config/nginx/conf.d/deny-tor-proxies.conf
 fi
 
-# download list of active abuser list from firehole
-curl -sL https://iplists.firehol.org/files/firehol_abusers_30d.netset | grep "^[^#]" | sed "s/^/deny /g; s/$/;/g" >> /tmp/refresh-agent/deny-firehole-abuser-30d.conf
-if ! cmp /tmp/refresh-agent/deny-firehole-abuser-30d.conf /config/nginx/conf.d/deny-firehole-abuser-30d.conf >/dev/null 2>&1
+# download list of active abuser list from firehol
+cp /default/nginx/conf.d/deny-firehol-abuser-30d.conf /tmp/refresh-agent/deny-firehol-abuser-30d.conf
+curl -sL https://iplists.firehol.org/files/firehol_abusers_30d.netset | grep "^[^#]" | sed "s/^/deny /g; s/$/;/g" >> /tmp/refresh-agent/deny-firehol-abuser-30d.conf
+if ! cmp /tmp/refresh-agent/deny-firehol-abuser-30d.conf /config/nginx/conf.d/deny-firehol-abuser-30d.conf >/dev/null 2>&1
 then
-  echo "$(date "+%F %T") Updating known abuser list from firehol to /config/nginx/conf.d/deny-firehole-abuser-30d.conf as this has changed." >> $LOG_FILE
-  mv -f /tmp/refresh-agent/deny-firehole-abuser-30d.conf /config/nginx/conf.d/deny-firehole-abuser-30d.conf
+  echo "$(date "+%F %T") Updating known abuser list from firehol to /config/nginx/conf.d/deny-firehol-abuser-30d.conf as this has changed." >> $LOG_FILE
+  mv -f /tmp/refresh-agent/deny-firehol-abuser-30d.conf /config/nginx/conf.d/deny-firehol-abuser-30d.conf
 fi
 
 # Update ultimate-bad-bot-blocker
