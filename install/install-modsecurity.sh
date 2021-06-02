@@ -44,3 +44,13 @@ cp /tmp/owasp-modsecurity-crs/LICENSE /default/nginx/owasp-crs.d/LICENSE
 cp -r /tmp/owasp-modsecurity-crs/rules /default/nginx/owasp-crs.d/rules/
 cp -r /tmp/owasp-modsecurity-crs/util /default/nginx/owasp-crs.d/util/
 cp -r /tmp/owasp-modsecurity-crs/plugins /default/nginx/owasp-crs.d/plugins/
+
+
+# Get OWASP Core rule set decode plugin with single decode configuration
+git clone https://github.com/coreruleset/auto-decoding-plugin /tmp/crs_decoding_plugin
+cp /tmp/crs_decoding_plugin/plugins/* /default/nginx/owasp-crs.d/plugins/
+
+# Get OWASP Core rule set antivirus plugin
+git clone https://github.com/coreruleset/antivirus-plugin /tmp/crs_antivirus_plugin
+cp /tmp/crs_antivirus_plugin/plugins/* /default/nginx/owasp-crs.d/plugins/
+sed -i "s/setvar:'tx.antivirus-plugin_clamav_socket_file=.*$/setvar:'tx.antivirus-plugin_clamav_socket_file=\/run\/clamav\/clamd.sock',\\\\/" /default/nginx/owasp-crs.d/plugins/antivirus-config-before.conf
