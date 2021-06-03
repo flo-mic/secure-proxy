@@ -13,7 +13,7 @@ echo "**** ClamAV scanning system for malicious files.... ****" | tee -a $LOG_FI
 # make sure action variable is lower case and properly formated
 CLAMAV_SYSTEM_SCAN=$(echo "${CLAMAV_SYSTEM_SCAN,,}")
 CLAMAV_ACTION=$(echo "${CLAMAV_ACTION,,}")
-CLAMAV_SYSTEM_SCAN=$(echo "${UPDATE_CONFIGURATION}" | sed "s/\"//g")
+CLAMAV_SYSTEM_SCAN=$(echo "${CLAMAV_SYSTEM_SCAN}" | sed "s/\"//g")
 
 # Exist script if file system scan was disabled
 if [[ $CLAMAV_SYSTEM_SCAN = "disabled" ]]; then

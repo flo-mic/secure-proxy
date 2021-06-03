@@ -1,0 +1,153 @@
+#!/usr/bin/with-contenv bash
+
+# Create folders
+mkdir -p /config/acme.sh
+mkdir -p /config/acme.sh/current
+mkdir -p /config/logs/acme.sh
+mkdir -p /config/www/acme_root
+sleep 1
+
+# Fix permissions for acme root folder
+chown -R root:secproxy /config/www/acme_root
+chmod +x /etc/scripts.d/renew-acme.sh
+
+# make sure all environment variables are lower case
+CERT_DOMAIN=$(echo "${CERT_DOMAIN,,}")
+CERT_SUBDOMAINS=$(echo "${CERT_SUBDOMAINS,,}")
+CERT_OTHER_DOMAINS=$(echo "${CERT_OTHER_DOMAINS,,}")
+CERT_STAGING=$(echo "${CERT_STAGING,,}")
+
+# check if CERT_DOMAIN was provided and format all parameters
+if [[ ! $CERT_DOMAIN == *.* ]]; then
+  echo "ERROR: No domain provided, can not continue with acme challenge! Make sure the \"CERT_DOMAIN\" parameter is provided." && \
+  sleep infinity
+fi
+
+# Read current config if available
+if [[ -f /config/acme.sh/acme.conf ]]; then
+    source /config/acme.sh/acme.conf
+fi
+
+# Create temp config file to compare config
+echo "ACME_DOMAIN=${CERT_DOMAIN}
+ACME_SUBDOMAINS=${CERT_SUBDOMAINS}
+ACME_OTHER_DOMAINS=${CERT_OTHER_DOMAINS}
+ACME_STAGING=${CERT_STAGING}
+" > "/config/acme.sh/acmp_tmp.conf"
+
+
+# Check if acme input variables changed
+ACME_STATUS="$(cmp -s /config/acme.sh/acme.conf /config/acme.sh/acmp_tmp.conf; echo $?)"
+if [[ $ACME_STATUS -ne 0 ]]; then 
+    echo "**** ACME config has changed, prepare new certificate ****"
+    # Update acme configuration
+    mv -f /config/acme.sh/acmp_tmp.conf  /config/acme.sh/acme.conf
+else
+    rm /config/acme.sh/acmp_tmp.conf
+fi
+
+# Check if live folder contains certificate
+if [[ -f "/config/acme.sh/current/fullchain.cer" ]]; then 
+    CERTIFICATE_EXISTS=true
+else
+    CERTIFICATE_EXISTS=false
+fi
+
+
+# If certificate does not exists or a new config is available perform renew
+if [[ $ACME_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
+    
+    echo "**** Requesting new certificate from LetsEncrypt ****"
+    
+    # Remove existing certs from live, archive and renewal folder
+    if [ -d "/config/acme.sh/${CERT_DOMAIN}" ]; then rm -Rf /config/acme.sh/${CERT_DOMAIN}; fi
+    if [ -d "/config/acme.sh/${ACME_DOMAIN}" ]; then rm -Rf /config/acme.sh/${ACME_DOMAIN}; fi
+
+
+    # Create temp certificate to avoid nginx chrash as no certificate is available
+    if [[ ! -f "/config/acme.sh/current/privkey.cer" ]]; then
+        echo "Generating temporary certificate file"
+        mkdir -p /config/acme.sh/current
+        openssl req -new -x509 -days 365 -nodes \
+            -out /config/acme.sh/current/fullchain.cer \
+            -keyout /config/acme.sh/current/privkey.key \
+            -subj "/C=DE/CN=flo-mic-secure-proxy.com" > /dev/null 2>&1
+            sleep 1
+    fi
+
+    # Get all domains to issue certificates for
+    echo "Domain: ${CERT_DOMAIN}"
+    REQUEST_DOMAINS="-d ${CERT_DOMAIN}"
+        
+    # Add subdomains to request domains
+    if [ -n "$CERT_SUBDOMAINS" ]; then
+        for i in $(echo $CERT_SUBDOMAINS | sed "s/ /,/g" | sed "s/,,/,/g" | sed "s/,/ /g")
+        do
+            echo "Subdomain: ${i}.${CERT_DOMAIN}"
+            REQUEST_DOMAINS="${REQUEST_DOMAINS} -d ${i}.${CERT_DOMAIN}"
+        done
+    fi
+
+    # Add subdomains to request domains
+    if [ -n "$CERT_OTHER_DOMAINS" ]; then
+        for i in $(echo $CERT_OTHER_DOMAINS | sed "s/ /,/g" | sed "s/,,/,/g" | sed "s/,/ /g")
+        do
+            echo "Other domain: ${i}.${CERT_DOMAIN}"
+            REQUEST_DOMAINS="${REQUEST_DOMAINS} -d ${i}"
+        done
+    fi
+
+    # Check if staging environment should be used
+    shopt -s nocasematch
+    if [[ ${CERT_STAGING} = "true" ]]; then
+        echo "Staging: true"
+        STAGING="--staging"
+    else
+        echo "Staging: false"
+        STAGING=""
+    fi
+
+    # Start nginx for acme
+    echo "**** Starting temporary nginx instance for acme challenge ****"
+    nohup ./etc/services.d/nginx/run &
+    sleep 1
+
+    # Request certificate 
+    ./.acme.sh/acme.sh $STAGING \
+        --issue $REQUEST_DOMAINS \
+        --home /config/acme.sh/ \
+        --cert-home /config/acme.sh/ \
+        --config-home /config/acme.sh/ \
+        --webroot /config/www/acme_root \
+        --keylength ec-384 \
+        --ecc \
+        --log /config/logs/acme.sh/acme.log \
+        --cert-file /config/acme.sh/current/cert.cer \
+        --key-file /config/acme.sh/current/privkey.key \
+        --ca-file /config/acme.sh/current/ca.cer \
+        --fullchain-file /config/acme.sh/current/fullchain.cer \
+        --reloadcmd "nginx -c /config/nginx/nginx.conf -s reload"
+
+    # Kill nginx to avoid issues with s6 service
+    echo "**** Stopping temporary nginx instance ****"
+    if pgrep -f "[n]ginx:" > /dev/null; then
+        pkill -f [n]ginx:
+        sleep 1
+    fi
+    if pgrep -f "[n]ginx:" > /dev/null; then
+        echo "Nginx  still active, sending SIGKILL"
+        pkill -9 -f [n]ginx:
+        sleep 1
+    fi
+
+else
+# Check if current certificate needs to be renewed
+    if openssl x509 -in /config/acme.sh/current/fullchain.cer -noout -checkend 86400 >/dev/null; then 
+        echo "" > /dev/null 
+    else
+        echo "**** ACME will renew the certificate now, this can take some minutes ****"
+        /etc/scripts.d/renew-acme.sh
+        sleep 1
+    fi
+fi
+

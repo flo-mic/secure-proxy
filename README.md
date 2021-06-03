@@ -72,11 +72,10 @@ All configuration files are stored in `/config`. Therefore it is recommended to 
 | TZ                      | yes         | Set your [timezone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for logs, cron jobs and syncs |
 | PUID                    | no          | User id to use in case of permission issues |
 | PGID                    | no          | Group id of the user provided in PUID in case of permission issues |
-| CERTBOT_DOMAIN          | yes         | Main domain to use, will be the first domain on the Let's Encrypt certificate (e.g. "example.com") |
-| CERTBOT_SUBDOMAINS      | no          | Certificate subdomains, provide subdomains seperated by space (e.g. "community" for "community.example.com")    |
-| CERTBOT_OTHER_DOMAINS   | no          | Other domains to included in the certificate, seperated by a space (e.g. "mail.example2.com smtp.example2.com")  |
-| CERTBOT_EMAIL           | recommended | Email address to use for the certificate. Not needed, but recommended for a proper certificate |
-| CERTBOT_STAGING         | yes         | Set to `true` for testing. For production use `false` to get a valid certificate which is trusted by web browsers |
+| CERT_DOMAIN             | yes         | Main domain to use, will be the first domain on the Let's Encrypt certificate (e.g. "example.com") |
+| CERT_SUBDOMAINS         | no          | Certificate subdomains, provide subdomains seperated by space (e.g. "community" for "community.example.com")    |
+| CERT_OTHER_DOMAINS      | no          | Other domains to included in the certificate, seperated by a space (e.g. "mail.example2.com smtp.example2.com")  |
+| CERT_STAGING            | yes         | Set to `true` for testing. For production use `false` to get a valid certificate which is trusted by web browsers |
 | CLAMAV_SYSTEM_SCAN      | no          | Enables or disables the ClamAV file system scan. Values are `enabled` and `disabled`. Default is `enabled` |
 | CLAMAV_ACTION           | no          | Action to perform on infection found. Allowed actions are `delete`, `move` and `ignore`. Default is `delete` |
 | CLAMAV_MAIL_REPORT      | no          | Send ClamAV report for file syste scans. Values: 0 = disabled, 1 = if infected, 2 = on every scan. Default is 1  |
@@ -115,10 +114,9 @@ services:
       - NET_ADMIN
     environment:
       - TZ=Europe/Berlin
-      - CERTBOT_DOMAIN=example.com   
-      - CERTBOT_SUBDOMAINS=www dev.wiki
-      - CERTBOT_EMAIL=contact@example.com
-      - CERTBOT_STAGING=false
+      - CERT_DOMAIN=example.com   
+      - CERT_SUBDOMAINS=www dev.wiki
+      - CERT_STAGING=false
     volumes:
       - data:/config
     restart: unless-stopped
@@ -160,10 +158,9 @@ services:
       - NET_ADMIN
     environment:
       - TZ=Europe/Berlin
-      - CERTBOT_DOMAIN=example.com   
-      - CERTBOT_SUBDOMAINS=www dev.wiki
-      - CERTBOT_EMAIL=contact@example.com
-      - CERTBOT_STAGING=false
+      - CERT_DOMAIN=example.com   
+      - CERT_SUBDOMAINS=www dev.wiki
+      - CERT_STAGING=false
       - CROWDSEC_URL=http://crowdsec:8080
       - CROWDSEC_API_TOKEN="" # Will be created later
     volumes:

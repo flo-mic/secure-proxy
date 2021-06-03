@@ -45,7 +45,6 @@ apk add --no-cache --upgrade \
     apache2-utils \
     bash \
     ca-certificates \
-    certbot \
     clamav \
     clamav-libunrar \
 	coreutils \
@@ -91,6 +90,12 @@ chmod +x /tmp/secproxy-installer/install-ultimate-bad-bot-blocker.sh
 ./tmp/secproxy-installer/install-ultimate-bad-bot-blocker.sh
 
 
+# Install ACME.sh client
+git clone https://github.com/acmesh-official/acme.sh.git /.acme.sh
+mkdir -p /default/www/acme_root/.well-known/acme-challenge
+chown -R root:secproxy /default/www/acme_root
+
+
 # Prepare fail2ban and move to default as template
 echo "Prepare fail2ban config"
 rm /etc/fail2ban/jail.d/alpine-ssh.conf
@@ -99,6 +104,7 @@ mv /etc/fail2ban/action.d /default/fail2ban/
 mv /etc/fail2ban/filter.d /default/fail2ban/
 # Replace default iptable action to "DROP" instead of "REJECT ..." as this cause errors on old iptable versions
 sed -i 's/^blocktype = .*$/blocktype = DROP/g' /default/fail2ban/action.d/iptables-common.conf
+
 
 # Apply custom cron config
 echo "Import custom crontabs"
