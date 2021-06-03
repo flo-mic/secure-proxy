@@ -33,7 +33,7 @@ echo "ACME_DOMAIN=${CERT_DOMAIN}
 ACME_SUBDOMAINS=${CERT_SUBDOMAINS}
 ACME_OTHER_DOMAINS=${CERT_OTHER_DOMAINS}
 ACME_STAGING=${CERT_STAGING}
-" > "/config/acme.sh/acmp_tmp.conf"
+" > /config/acme.sh/acmp_tmp.conf
 
 
 # Check if acme input variables changed
@@ -41,7 +41,7 @@ ACME_STATUS="$(cmp -s /config/acme.sh/acme.conf /config/acme.sh/acmp_tmp.conf; e
 if [[ $ACME_STATUS -ne 0 ]]; then 
     echo "**** ACME config has changed, prepare new certificate ****"
     # Update acme configuration
-    mv -f /config/acme.sh/acmp_tmp.conf  /config/acme.sh/acme.conf
+    mv -f /config/acme.sh/acmp_tmp.conf /config/acme.sh/acme.conf
 else
     rm /config/acme.sh/acmp_tmp.conf
 fi
@@ -61,8 +61,6 @@ if [[ $ACME_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
     
     # Remove existing certs from live, archive and renewal folder
     if [ -d "/config/acme.sh/${CERT_DOMAIN}" ]; then rm -Rf /config/acme.sh/${CERT_DOMAIN}; fi
-    if [ -d "/config/acme.sh/${ACME_DOMAIN}" ]; then rm -Rf /config/acme.sh/${ACME_DOMAIN}; fi
-
 
     # Create temp certificate to avoid nginx chrash as no certificate is available
     if [[ ! -f "/config/acme.sh/current/privkey.cer" ]]; then
