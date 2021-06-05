@@ -29,10 +29,10 @@ if [[ -f /config/acme.sh/acme.conf ]]; then
 fi
 
 # Create temp config file to compare config
-echo "ACME_DOMAIN=${CERT_DOMAIN}
-ACME_SUBDOMAINS=${CERT_SUBDOMAINS}
-ACME_OTHER_DOMAINS=${CERT_OTHER_DOMAINS}
-ACME_STAGING=${CERT_STAGING}
+echo "ACME_DOMAIN='${CERT_DOMAIN}'
+ACME_SUBDOMAINS='${CERT_SUBDOMAINS}'
+ACME_OTHER_DOMAINS='${CERT_OTHER_DOMAINS}'
+ACME_STAGING='${CERT_STAGING}'
 " > /config/acme.sh/acmp_tmp.conf
 
 
