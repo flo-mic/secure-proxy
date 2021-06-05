@@ -1,8 +1,8 @@
 
 # redirect traffic to https
 server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
+	listen 80;
+	listen [::]:80;
 	server_name _;
 
 	return 301 https://$host$request_uri;
@@ -10,8 +10,9 @@ server {
 
 # Default SSL server
 server {
-    listen 443 ssl http2 default_server;
-    listen [::]:443 ssl http2 default_server;
+	listen 443 ssl http2;
+	listen [::]:443 ssl http2;
+	server_name _;
 
 	root /config/www;
 	index index.html;
@@ -20,8 +21,8 @@ server {
 	include /config/nginx/sites-conf.d/*.conf;
 
 	# Enable ModSecurity Web Application Firewall inside this server block
-    modsecurity on;
-    modsecurity_rules_file /config/nginx/modsec.d/main.conf;
+	modsecurity on;
+	modsecurity_rules_file /config/nginx/modsec.d/main.conf;
 
 	# Default location in case no location is specified
 	location / {
