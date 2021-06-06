@@ -8,20 +8,10 @@ PGID=${PGID:-911}
 groupmod -o -g "$PGID" secproxy >/dev/null
 usermod -o -u "$PUID" secproxy >/dev/null
 
-echo '
--------------------------------------
- ___  __    __    __  __     ____
-/ __| \ \  /  \  / / /  \   / __/_
-\__ \  \ \/ /\ \/ / / __ \ | |_/  \
-|___/   \__/  \__/ /_/  \_\ \___/|_|
-
--------------------------------------
--------------------------------------'
-echo "
-User uid:    $(id -u secproxy)
+echo '-------------------------------------'
+echo "User uid:    $(id -u secproxy)
 User gid:    $(id -g secproxy)
--------------------------------------
-"
+-------------------------------------"
 
 # Set permission for secproxy user
 chown secproxy:secproxy /config

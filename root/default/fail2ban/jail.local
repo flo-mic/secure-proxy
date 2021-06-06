@@ -100,14 +100,6 @@ logpath  = %(nginx_access_log)s
 maxretry = 2
 
 
-[nginx-noscript]
-enabled  = true
-port     = http,https
-filter   = nginx-noscript
-logpath  = %(nginx_access_log)s
-maxretry = 2
-
-
 [nginx-limit-req]
 enabled = true
 filter = nginx-limit-req

@@ -34,8 +34,8 @@ done
 
 # Inform about available updates
 if [ -n "$confs_changed" ]; then
-    echo "**** Update in default configurations detected ****"
-    echo "**** Remove the following files to get updates ****"
-    echo "**** Save your custom settings before deletion ****"
+    echo "**** Changes in default configurations detected ****"
+    echo "**** Remove the following files to get defaults ****"
+    echo "**** Save your custom settings before deletion  ****"
     echo -e "${confs_changed}"
 fi

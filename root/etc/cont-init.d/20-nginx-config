@@ -3,6 +3,12 @@
 # Create log folder
 mkdir -p /config/logs/nginx
 
+# Link modsecurity log
+touch /config/logs/nginx/modsec_audit.log
+sleep 1
+rm -rf /var/log/modsec_audit.log
+ln -s /config/logs/nginx/modsec_audit.log /var/log/modsec_audit.log
+
 # Link log folder to default location
 rm -rf /var/log/nginx
 ln -s /config/logs/nginx /var/log/nginx
