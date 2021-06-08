@@ -34,8 +34,8 @@ do
 
 	# Check if automatic update was configured
 	if [[ ${UPDATE_CONFIGURATION} = "enabled" ]]; then
-		# If automatic update do not overwrite bots.d and sites-available as this impacts the user configuration
-		if [[ ${CONFIG_PATH} != "/config/nginx/sites-available/"* ]] && [[ ${CONFIG_PATH} != "/config/nginx/bots.d/"* ]]; then
+		# Do not overwrite files in sites-available/* 
+		if [[ ${CONFIG_PATH} != "/config/nginx/sites-available/"* ]]; then
 			cp $i $CONFIG_PATH
 		fi
 	elif [[ ! -f $CONFIG_PATH ]]; then

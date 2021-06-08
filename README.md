@@ -224,7 +224,6 @@ The nginx configuration of the secure-proxy is done with configuration files as 
 ### Nginx config locations:
 
 - `/config/nginx/nginx.conf` -> Main configuration file of nginx
-- `/config/nginx/bots.d/` -> Directory contains bad and good bots. You can add more bots if needed.
 - `/config/nginx/conf.d/` -> Directory contains configurations which are available globaly and loaded in the http directive of nginx.
 - `/config/nginx/modsec.d/` -> Directory contains the main configuration files of the ModSecurity web application firewall.
 - `/config/nginx/owasp-crs.d/` -> Directory contains the OWASP core rule set for ModSecurity

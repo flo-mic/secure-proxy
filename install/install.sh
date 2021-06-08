@@ -85,11 +85,6 @@ apk add --no-cache --upgrade \
 ./tmp/secproxy-installer/install-crowdsec.sh
 
 
-# Install ultimate-bad-bot-blocker
-chmod +x /tmp/secproxy-installer/install-ultimate-bad-bot-blocker.sh
-./tmp/secproxy-installer/install-ultimate-bad-bot-blocker.sh
-
-
 # Install ACME.sh client
 git clone https://github.com/acmesh-official/acme.sh.git /.acme.sh
 mkdir -p /default/www/acme_root/.well-known/acme-challenge

@@ -4,6 +4,6 @@
 
 [DEFAULT]
 
-nginx_error_log = /config/logs/nginx/*error.log
+nginx_error_log = /config/logs/nginx/*error*.log
 
-nginx_access_log = /config/logs/nginx/*access.log
+nginx_access_log = /config/logs/nginx/*access*.log

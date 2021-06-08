@@ -117,6 +117,11 @@ make install
 
 # copy mime.types to default location
 mkdir -p /default/nginx
-mv /etc/nginx/mime.types /default/nginx/mime.types
+cp /etc/nginx/mime.types /default/nginx/mime.types
+
+# Copy nginx config to use for config validation and make required folders
+cp /tmp/secproxy-installer/etc/nginx/nginx.conf /etc/nginx/nginx.conf
+mkdir -p /etc/nginx/conf.d
+mkdir -p /etc/nginx/sites-conf.d
 
 cd /tmp
