@@ -1,4 +1,4 @@
-/config/log/fail2ban/fail2ban.log {
+/config/logs/fail2ban/fail2ban.log {
 
     # rotate log files daily, weekly...
     weekly

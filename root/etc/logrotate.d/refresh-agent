@@ -1,4 +1,4 @@
-/config/log/refresh-agent/*.log {
+/config/logs/refresh-agent/*.log {
 
     # rotate log files daily, weekly...
     weekly

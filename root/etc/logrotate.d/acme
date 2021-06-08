@@ -1,4 +1,4 @@
-/config/log/acme.sh/*.log {
+/config/logs/acme.sh/*.log {
  
     # rotate log files daily, weekly...
     weekly
