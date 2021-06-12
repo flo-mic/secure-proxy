@@ -84,6 +84,7 @@ All configuration files are stored in `/config`. Therefore it is recommended to 
 | CROWDSEC_URL            | no          | URL of the crowdsec instance to use for a cloud based protection system |
 | CROWDSEC_API_TOKEN      | no          | API token for crowdsec bouncers, if the `CROWDSEC_API_TOKEN_FILE` is not provided it will use the clear text api token |
 | CROWDSEC_API_TOKEN_FILE | no          | API token to use for crowdsec bouncers |
+| FAIL2BAN_ENABLED        | no          | Defines if fail2ban is enabled. For Testing and modsecurity rule creation you might disable this. Values are `enabled` and `disabled`. Default is `enabled` |
 | FAIL2BAN_MAIL_REPORT    | no          | Send a notification mail for ban/unban actions. Values are `enabled` and `disabled`. Default is `enabled` |
 | SMTP_SERVER             | no          | Smtp server and port  for email notifications (e.g. "smtp.example.com:587") |
 | SMTP_SENDER_MAIL        | no          | Smtp sender address for outgoing mails. Required if you provide the parameter `SMTP_SERVER` |
@@ -225,8 +226,7 @@ The nginx configuration of the secure-proxy is done with configuration files as 
 
 - `/config/nginx/nginx.conf` -> Main configuration file of nginx
 - `/config/nginx/conf.d/` -> Directory contains configurations which are available globaly and loaded in the http directive of nginx.
-- `/config/nginx/modsec.d/` -> Directory contains the main configuration files of the ModSecurity web application firewall.
-- `/config/nginx/owasp-crs.d/` -> Directory contains the OWASP core rule set for ModSecurity
+- `/config/nginx/modsec.d/` -> Directory contains the main configuration files of the ModSecurity web application firewall and OWASP core rule set.
 - `/config/nginx/sites-available/` -> Directory contains all server locations to load. A default location as already available and can be used as reference.
 - `/config/nginx/sites-conf.d/` -> Directory contains configurations which will be loaded in the server directive. By default all configurations within this folder are loaded in the available sites.
 - `/config/www/` -> Directory contains static websites to serve. By default only an generic index.html site and custom error pages are available. It is recommended to not remove the custom error pages as they are importand to hide the nginx default page which tells an attacker hat this server is running on nginx.

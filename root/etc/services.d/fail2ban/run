@@ -1,3 +1,5 @@
 #!/usr/bin/with-contenv bash
 
-exec fail2ban-client -x -f start
+if [[ ${FAIL2BAN_ENABLED} != "disabled" ]]; then
+    exec fail2ban-client -x -f start
+fi
