@@ -35,6 +35,9 @@ if [[ ! -f /config/logs/nginx/access.log ]]; then
 	touch /config/logs/nginx/access.log
 fi
 
+# Make av scanner script executable
+chmod +x /config/nginx/modsec.d/tools/av-scanning/runav.pl
+
 # Download/update bad bot, blocking and serval other lists
 chmod +x /etc/scripts.d/refresh-agent.sh
 chmod +x /etc/scripts.d/refresh-agent-weekly.sh

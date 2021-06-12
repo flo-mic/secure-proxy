@@ -1,3 +1,0 @@
-#!/usr/bin/with-contenv bash
-
-exec /usr/sbin/clamd start >/dev/null
