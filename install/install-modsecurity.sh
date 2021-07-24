@@ -36,7 +36,7 @@ cd /tmp
 
 # Get OWASP Core rule set
 echo "Get OWASP core rule set"
-git clone -b "v${OWASP_VERSION}/master" --depth 1 --quiet https://github.com/coreruleset/coreruleset.git /tmp/owasp-modsecurity-crs
+git clone -b "${OWASP_VERSION}" --depth 1 --quiet https://github.com/coreruleset/coreruleset.git /tmp/owasp-modsecurity-crs
 mkdir -p /default/nginx/modsec.d
 cp /tmp/owasp-modsecurity-crs/crs-setup.conf.example /default/nginx/modsec.d/crs-setup.conf
 cp -r /tmp/owasp-modsecurity-crs/rules /default/nginx/modsec.d/rules/
