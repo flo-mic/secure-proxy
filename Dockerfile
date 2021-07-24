@@ -4,7 +4,7 @@ FROM alpine:latest
 
 # Software versions to use
 ARG NGINX_VERSION=1.20.1
-ARG MODSECURITY_VERSION=3.0.4
+ARG MODSECURITY_VERSION=3.0.5
 ARG OWASP_VERSION=3.3
 
 # Variable to specify if running on GitHub Action or localy (prevent GitHub action resource issues)
