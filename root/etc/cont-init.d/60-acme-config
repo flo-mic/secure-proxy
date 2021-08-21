@@ -113,6 +113,7 @@ if [[ $ACME_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
     # Request certificate 
     ./.acme.sh/acme.sh $STAGING \
         --issue $REQUEST_DOMAINS \
+        --server letsencrypt \
         --home /config/acme.sh/ \
         --cert-home /config/acme.sh/ \
         --config-home /config/acme.sh/ \
