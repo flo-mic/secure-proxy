@@ -3,7 +3,7 @@
 FROM alpine:latest
 
 # Software versions to use
-ARG NGINX_VERSION=1.20.1
+ARG NGINX_VERSION=1.21.3
 ARG MODSECURITY_VERSION=3.0.5
 ARG OWASP_VERSION=v3.4/dev
 
