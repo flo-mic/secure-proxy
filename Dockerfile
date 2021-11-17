@@ -1,6 +1,6 @@
 
 # Main image
-FROM alpine:latest
+FROM alpine:3.14.3
 
 # Software versions to use
 ARG NGINX_VERSION=1.21.3
