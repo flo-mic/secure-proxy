@@ -27,6 +27,7 @@ Secure-Proxy based on nginx with integrated web application firewall, Let's Encr
 - Crowdsec cloud based protection system
 - CalmAV suspicious file scan for all uploaded files
 - Anti DDOS enabled
+- Open ID Connect / OAuth2 support enabled
 - Block vulnarability scanners
 - Prevent SQL and XSS Injection
 - Blocks bad-bots, user agents, IP addresses, TOR endpoints and a lot more.

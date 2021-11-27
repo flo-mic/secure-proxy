@@ -1,0 +1,38 @@
+
+# This configuration contains examples for an openid connection to e.g. keycloak as SSO provider
+
+# By default this configuration is disabled, but you can load it by removing the ".example" from the filename.
+# To enable this only for specific sites, load the conf file manually in the required sites like demonstrated below:
+
+# Examples for server block
+# include /config/nginx/sites-conf.d/openid-connect.conf.example;
+
+# Lua rule for OpenID Connect authentication
+    access_by_lua '
+        -- Details for OIDC connection
+        local opts = {
+            redirect_uri = "/redirect_uri",
+            accept_none_alg = true,
+            discovery = "https://example.com/auth/realms/example.com/.well-known/openid-configuration",
+            client_id = "secure-proxy-auth",
+            client_secret = "********-****-****-****-********",
+            ssl_verify = "yes",
+            logout_path = "/logout",
+            redirect_after_logout_uri = "https://example.com/auth/realms/example.com/protocol/openid-connect/logout?redirect_uri=https%3A%2F%site.example.com",
+            redirect_after_logout_with_id_token_hint = false,
+            session_contents = {id_token=true},
+            scope = "openid email profile",
+            renew_access_token_on_expiry = true 
+        }
+        -- call introspect for OAuth 2.0 Bearer Access Token validation
+        local oidc = require("resty.openidc")
+        local res, err = oidc.authenticate(opts)
+         
+        if err then
+            ngx.status = 403
+            ngx.say(err)
+            ngx.exit(ngx.HTTP_FORBIDDEN)
+        end
+      ';
+
+
