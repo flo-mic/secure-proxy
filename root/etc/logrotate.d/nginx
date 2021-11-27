@@ -7,13 +7,13 @@
     rotate 4
     
     # uncomment this if you want your log files compressed
-    #compress
+    compress
 
     # Postpone compression of the previous log file to the next rotation cycle
     #delaycompress
 
     # create new (empty) log files after rotating old ones
-    #create
+    create
 
     # If the log file is missing, go on to the next one without issuing an error message
     missingok
