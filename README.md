@@ -8,6 +8,7 @@
   - [Docker-Compose with Crowdsec](#Docker-Compose-with-Crowdsec)
   - [Nginx configuration](#Nginx-configuration)
   - [GeoIP configuration](#GeoIP-configuration)
+  - [OpenID Connect configuration](#OICD-configuration)
 - [Other great projects](#Other-great-projects)
  
 <br/> 
@@ -284,6 +285,63 @@ map $geoip2_data_country_code $allowed_country {
     RU no;
 }
 ```
+<br/>
+<a name="OICD-configuration"/>
+
+## OpenID Connect configuration
+
+If you want to use openid conenct to connect e.g. keycloak as an OAuth2 provider you need to add the following content to your server block whioch should be protected. Make sure to update the following values 
+    - '<SessionSecret>' -> A 32 digits session secret which must be predefined so that all worker processes can use it. If you protect multiple sites with the same OAuth2 provider, you shoudl add the same key to all of them.
+    - '<DiscoveryUrl>' -> The discovery URL of you OAuth instance. For keycloak it is something like `https://example.com/auth/realms/example.com/.well-known/openid-configuration`
+    - '<ClientID>' -> The client id of the openid-connect client.
+    - '<ClientSecret>' -> The client secret of the openid-connect client.
+    - '<RedirectLogoutUrl> -> The logout url to pass to the application in case a logout is required. For keycloak use this `https://example.com/auth/realms/example.com/protocol/openid-connect/logout?redirect_uri=https%3A%2F%2F`
+```
+server {
+	listen 443 ssl http2;
+	listen [::]:443 ssl http2;
+	
+  ...
+
+	# Set session secret of oicd access
+    set $session_secret <SessionSecret>; # 32 digits session key for all worker processes
+    
+	# Lua rule for OpenID Connect authentication
+    access_by_lua '
+        local opts = {
+            redirect_uri = ngx.var.scheme .. "://" .. ngx.var.server_name .. "/redirect_uri",
+            accept_none_alg = true,
+            discovery = "<DiscoveryUrl>",
+            client_id = "<ClientID>",
+            client_secret = "<ClientSecret>",
+            ssl_verify = "yes",
+            logout_path = "/logout",
+            redirect_after_logout_uri = "<RedirectLogoutUrl>" .. ngx.var.server_name,
+            redirect_after_logout_with_id_token_hint = false,
+            scope = "openid email profile",
+            session_contents = {id_token=true},
+            renew_access_token_on_expiry = true
+        }
+        -- call introspect for OAuth 2.0 Bearer Access Token validation
+        local oidc = require("resty.openidc")
+        local res, err = oidc.authenticate(opts)
+         
+        if err then
+            ngx.status = 403
+            ngx.say(err)
+            ngx.exit(ngx.HTTP_FORBIDDEN)
+        end
+      ';
+
+    # Application root location
+	location / {	
+
+		# Proxy endpoint location
+		proxy_pass https://172.16.1.123:8080;
+	}
+}
+```
+
 <br/> 
 <a name="Other-great-projects"/>
 
