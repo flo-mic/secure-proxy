@@ -290,48 +290,30 @@ map $geoip2_data_country_code $allowed_country {
 
 ## OpenID Connect configuration
 
-If you want to use openid conenct to connect e.g. keycloak as an OAuth2 provider you need to add the following content to your server block whioch should be protected. Make sure to update the following values 
-    - '<SessionSecret>' -> A 32 digits session secret which must be predefined so that all worker processes can use it. If you protect multiple sites with the same OAuth2 provider, you shoudl add the same key to all of them.
-    - '<DiscoveryUrl>' -> The discovery URL of you OAuth instance. For keycloak it is something like `https://example.com/auth/realms/example.com/.well-known/openid-configuration`
-    - '<ClientID>' -> The client id of the openid-connect client.
-    - '<ClientSecret>' -> The client secret of the openid-connect client.
-    - '<RedirectLogoutUrl> -> The logout url to pass to the application in case a logout is required. For keycloak use this `https://example.com/auth/realms/example.com/protocol/openid-connect/logout?redirect_uri=https%3A%2F%2F`
+If you want to use openid conenct to connect e.g. keycloak as an OAuth2 provider you need to add the following content to your server or location block which you want to protect. Update all values with the details you received from your identity provider.
+    - `session_secret` -> A 32 digits session secret which must be predefined so that all worker processes can use it. If you protect multiple sites with the same OAuth2 provider, you shoudl add the same key to all of them.
+    - `oidc_discovery_url` -> The discovery URL of you OAuth instance. For keycloak it is something like `https://example.com/auth/realms/example.com/.well-known/openid-configuration`
+    - `oidc_client_id` -> The client id of the openid-connect client.
+    - `oidc_client_secret` -> The client secret of the openid-connect client.
+    - `oidc_logout_path` -> The logout path of the client application, e.g. `/profile/logout`
+    - `oidc_post_logout_redirect_uri` -> The url to open after lockout, normaly it is the root of the server like `https://app.example.com`
 ```
 server {
 	listen 443 ssl http2;
 	listen [::]:443 ssl http2;
-	
+	server_name app.example.com;
   ...
 
 	# Set session secret of oicd access
-    set $session_secret <SessionSecret>; # 32 digits session key for all worker processes
+    set $session_secret 01234567890123456789012345678901; # 32 digits session key for all worker processes
     
-	# Lua rule for OpenID Connect authentication
-    access_by_lua '
-        local opts = {
-            redirect_uri = ngx.var.scheme .. "://" .. ngx.var.server_name .. "/redirect_uri",
-            accept_none_alg = true,
-            discovery = "<DiscoveryUrl>",
-            client_id = "<ClientID>",
-            client_secret = "<ClientSecret>",
-            ssl_verify = "yes",
-            logout_path = "/logout",
-            redirect_after_logout_uri = "<RedirectLogoutUrl>" .. ngx.var.server_name,
-            redirect_after_logout_with_id_token_hint = false,
-            scope = "openid email profile",
-            session_contents = {id_token=true},
-            renew_access_token_on_expiry = true
-        }
-        -- call introspect for OAuth 2.0 Bearer Access Token validation
-        local oidc = require("resty.openidc")
-        local res, err = oidc.authenticate(opts)
-         
-        if err then
-            ngx.status = 403
-            ngx.say(err)
-            ngx.exit(ngx.HTTP_FORBIDDEN)
-        end
-      ';
+	# Enable OpenID connection
+    set $oidc_discovery_url "https://keycloak.example.com/auth/realms/example.com/.well-known/openid-configuration";
+    set $oidc_client_id "secure-proxy-client";
+    set $oidc_client_secret "********************";
+    set $oidc_logout_path "/logout";
+    set $oidc_post_logout_redirect_uri "https://app.example.com";
+    set $oidc_enabled "true";
 
     # Application root location
 	location / {	
@@ -340,6 +322,39 @@ server {
 		proxy_pass https://172.16.1.123:8080;
 	}
 }
+```
+
+### CORS configuration to prevent errors
+
+In order to prevent CORS issues you should allow your individual subdomains to the allowed origins list. Therefore create a new file with the path `/config/nginx/conf.d/cors.conf` and place the following content inside the file. Replace `example.com` with your domain name. This will map the main domain and all subdomains to the allowed origins map table.
+```
+# Create map table for subdomain origin mapping
+map $http_origin $allow_origin {
+    ~^https?://(.*\.)?example.com(:\d+)?$ $http_origin;
+    default "";
+}
+```
+
+If you identity provider like keycloak is also protected with the secure proxy webserver that you probably need to configure some allow origins for the authentication. Open the keycloak nginx server block setting and make sure to add the below configurations to it. You probably need to whitelist additional headers debending on your client. In my case I had to allow the headers `Authorization, X-Requested-With, X-Emby-Authorization, Upgrade-Insecure-Requests` to get my application SSO to work. You can find this our in the browser network tab. If you notice CORS errors have a look at the request which is send before or short after the CORS error. It may contain a header `Access-Control-Request-Headers`. Add the content of this to the content in the header `Access-Control-Allow-Headers` below.
+```
+# Overwrite Origin to allow same domain and subdomain origin from the mapping table
+more_clear_headers "Access-Control-Allow-Origin";
+add_header 'Access-Control-Allow-Origin' $allow_origin;
+
+# Overwrite Methods to allow specific methods for OICD redirects
+more_clear_headers "Access-Control-Allow-Methods";
+add_header 'Access-Control-Allow-Methods' 'POST, GET, OPTIONS';
+
+# Overwrite and allow sending of credentials in the redirect
+more_clear_headers "Access-Control-Allow-Credentials";
+add_header 'Access-Control-Allow-Credentials' 'true';
+
+# Overwrite Headers to allow specific headers in the redirect
+more_clear_headers "Access-Control-Allow-Headers";
+add_header 'Access-Control-Allow-Headers' 'Authorization, X-Requested-With, X-Emby-Authorization, Upgrade-Insecure-Requests';
+
+# Avoid caching of allowed origin header
+add_header Vary "Origin";
 ```
 
 <br/> 
