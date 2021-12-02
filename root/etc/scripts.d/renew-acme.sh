@@ -3,6 +3,7 @@
 # Renew certificates 
 ./acme.sh --renew-all \
     --ecc \
+    --ocsp \
     --home /config/acme.sh/ \
     --cert-home /config/acme.sh/ \
     --config-home /config/acme.sh/ \

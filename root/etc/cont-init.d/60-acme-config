@@ -120,6 +120,7 @@ if [[ $ACME_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
         --webroot /config/www/acme_root \
         --keylength ec-384 \
         --ecc \
+        --ocsp \
         --force \
         --log /config/logs/acme.sh/acme.log \
         --cert-file /config/acme.sh/current/cert.cer \
