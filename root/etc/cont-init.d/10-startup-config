@@ -22,6 +22,8 @@ chown secproxy:secproxy /default
 UPDATE_CONFIGURATION=$(echo "${UPDATE_CONFIGURATION,,}")
 UPDATE_CONFIGURATION=$(echo "${UPDATE_CONFIGURATION}" | sed "s/\"//g")
 
+# Remove existing autoconf file
+rm -f /config/nginx/conf.d/autoconf.conf
 
 # Copy template files if not exist
 for i in $(find /default -type f)

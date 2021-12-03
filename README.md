@@ -77,9 +77,7 @@ All configuration files are stored in `/config`. Therefore it is recommended to 
 | TZ                      | yes         | Set your [timezone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for logs, cron jobs and syncs |
 | PUID                    | no          | User id to use in case of permission issues |
 | PGID                    | no          | Group id of the user provided in PUID in case of permission issues |
-| CERT_DOMAIN             | yes         | Main domain to use, will be the first domain on the Let's Encrypt certificate (e.g. "example.com") |
-| CERT_SUBDOMAINS         | no          | Certificate subdomains, provide subdomains seperated by space (e.g. "community" for "community.example.com")    |
-| CERT_OTHER_DOMAINS      | no          | Other domains to included in the certificate, seperated by a space (e.g. "mail.example2.com smtp.example2.com")  |
+| CERT_FILE_              | yes         | Each environment variable that starts with `CERT_FILE_` will be considered as one certificate to create. You can add multiple dns names to this certificate like `CERT_FILE_WORDPRESS=example.com www.example.com wordpress.example.com` If you need additional certificates you can add them as well, just add another variable liek `CERT_FILE_NEXTCLOUD=nextcloud.example.com` to generate another certificate. |
 | CERT_STAGING            | yes         | Set to `true` for testing. For production use `false` to get a valid certificate which is trusted by web browsers |
 | CLAMAV_SYSTEM_SCAN      | no          | Enables or disables the ClamAV file system scan. Values are `enabled` and `disabled`. Default is `enabled` |
 | CLAMAV_ACTION           | no          | Action to perform on infection found. Allowed actions are `delete`, `move` and `ignore`. Default is `delete` |
@@ -120,8 +118,8 @@ services:
       - NET_ADMIN
     environment:
       - TZ=Europe/Berlin
-      - CERT_DOMAIN=example.com   
-      - CERT_SUBDOMAINS=www dev.wiki
+      - CERT_FILE_WORDPRESS=example.com www.example.com wordpress.example.com
+      - CERT_FILE_NEXTCLOUD=nextcloud.example.com
       - CERT_STAGING=false
     volumes:
       - data:/config
@@ -164,8 +162,8 @@ services:
       - NET_ADMIN
     environment:
       - TZ=Europe/Berlin
-      - CERT_DOMAIN=example.com   
-      - CERT_SUBDOMAINS=www dev.wiki
+      - CERT_FILE_WORDPRESS=example.com www.example.com wordpress.example.com
+      - CERT_FILE_NEXTCLOUD=nextcloud.example.com
       - CERT_STAGING=false
       - CROWDSEC_URL=http://crowdsec:8080
       - CROWDSEC_API_TOKEN="" # Will be created later

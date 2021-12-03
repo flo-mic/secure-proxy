@@ -22,6 +22,7 @@ TEMPLATE_IGNORE_ARRAY=(
     "/default/nginx/conf.d/deny-tor-proxies.conf"
     "/default/nginx/conf.d/deny-bad-referers.conf"
     "/default/nginx/conf.d/deny-bad-user-agents.conf"
+    "/default/nginx/conf.d/autoconf.conf"
 )
 
 # Check for configuration updates that need to be performed from the user manually to prevent any breaking changes

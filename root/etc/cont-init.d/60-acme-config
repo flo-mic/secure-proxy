@@ -2,134 +2,224 @@
 
 # Create folders
 mkdir -p /config/acme.sh
-mkdir -p /config/acme.sh/current
+mkdir -p /config/acme.sh/default
+mkdir -p /config/acme.sh/backup
 mkdir -p /config/logs/acme.sh
 mkdir -p /config/www/acme_root
 sleep 1
+
 
 # Fix permissions for acme root folder
 chown -R root:secproxy /config/www/acme_root
 chmod +x /etc/scripts.d/renew-acme.sh
 
-# make sure all environment variables are lower case
-CERT_DOMAIN=$(echo "${CERT_DOMAIN,,}")
-CERT_SUBDOMAINS=$(echo "${CERT_SUBDOMAINS,,}")
-CERT_OTHER_DOMAINS=$(echo "${CERT_OTHER_DOMAINS,,}")
-CERT_STAGING=$(echo "${CERT_STAGING,,}")
+# Get all existing certificates
+CERTIFICATES_TO_DELETE=$(ls -d /config/acme.sh/*_ecc | sed "s/\/config\/acme.sh\///g")
 
-# check if CERT_DOMAIN was provided and format all parameters
-if [[ ! $CERT_DOMAIN == *.* ]]; then
-  echo "ERROR: No domain provided, can not continue with acme challenge! Make sure the \"CERT_DOMAIN\" parameter is provided." && \
-  sleep infinity
-fi
-
-# Read current config if available
-if [[ -f /config/acme.sh/acme.conf ]]; then
-    source /config/acme.sh/acme.conf
-fi
-
-# Create temp config file to compare config
-echo "ACME_DOMAIN='${CERT_DOMAIN}'
-ACME_SUBDOMAINS='${CERT_SUBDOMAINS}'
-ACME_OTHER_DOMAINS='${CERT_OTHER_DOMAINS}'
-ACME_STAGING='${CERT_STAGING}'
-" > /config/acme.sh/acmp_tmp.conf
-
-
-# Check if acme input variables changed
-ACME_STATUS="$(cmp -s /config/acme.sh/acme.conf /config/acme.sh/acmp_tmp.conf; echo $?)"
-if [[ $ACME_STATUS -ne 0 ]]; then 
-    echo "**** ACME config has changed, prepare new certificate ****"
-    # Update acme configuration
-    mv -f /config/acme.sh/acmp_tmp.conf /config/acme.sh/acme.conf
+# Check if script was triggered by startup or renew cron job
+if [[ -f /tmp/acme-renew.lock ]]; then
+    CRON_JOB="true"
+    rm -f /tmp/acme-renew.lock 
 else
-    rm /config/acme.sh/acmp_tmp.conf
+    CRON_JOB="false"
+
+    # Backup autoconf as we need to replace during certificate issuing
+    AUTOCONF_FILE=/config/nginx/conf.d/autoconf.conf
+    mv $AUTOCONF_FILE $AUTOCONF_FILE.bak
+    echo "map \$host \$certfile {
+        default    /config/acme.sh/defaut/fullchain.cer;
+    }
+    map \$host \$keyfile {
+        default    /config/acme.sh/defaut/privkey.cer;
+    }" > $AUTOCONF_FILE
+    sleep 1
 fi
 
-# Check if live folder contains certificate
-if [[ -f "/config/acme.sh/current/fullchain.cer" ]]; then 
-    CERTIFICATE_EXISTS=true
-else
-    CERTIFICATE_EXISTS=false
-fi
 
-
-# If certificate does not exists or a new config is available perform renew
-if [[ $ACME_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
-    
-    echo "**** Requesting new certificate from LetsEncrypt ****"
-    
-    # Remove existing certs from live, archive and renewal folder
-    if [ -d "/config/acme.sh/${CERT_DOMAIN}" ]; then rm -Rf /config/acme.sh/${CERT_DOMAIN}; fi
-
-    # Create temp certificate to avoid nginx chrash as no certificate is available
-    if [[ ! -f "/config/acme.sh/current/privkey.cer" ]]; then
-        echo "Generating temporary certificate file"
-        mkdir -p /config/acme.sh/current
+# Check if default self signed certificate exists
+if [[ -f "/config/acme.sh/default/privkey.key" ]]; then
+        # Check if default certificate needs to be renewed
+    if openssl x509 -in /config/acme.sh/default/fullchain.cer -noout -checkend 86400 >/dev/null; then 
+        echo "" > /dev/null 
+    else
+        echo "Generating new default certificate file"
         openssl req -new -x509 -days 365 -nodes \
-            -out /config/acme.sh/current/fullchain.cer \
-            -keyout /config/acme.sh/current/privkey.key \
+            -out /config/acme.sh/default/fullchain.cer \
+            -keyout /config/acme.sh/default/privkey.key \
             -subj "/C=DE/CN=flo-mic-secure-proxy.com" > /dev/null 2>&1
             sleep 1
     fi
+else 
+    echo "Generating default certificate file"
+    openssl req -new -x509 -days 365 -nodes \
+        -out /config/acme.sh/default/fullchain.cer \
+        -keyout /config/acme.sh/default/privkey.key \
+        -subj "/C=DE/CN=flo-mic-secure-proxy.com" > /dev/null 2>&1
+        sleep 1
+fi
 
-    # Get all domains to issue certificates for
-    echo "Domain: ${CERT_DOMAIN}"
-    REQUEST_DOMAINS="-d ${CERT_DOMAIN}"
-        
-    # Add subdomains to request domains
-    if [ -n "$CERT_SUBDOMAINS" ]; then
-        for i in $(echo $CERT_SUBDOMAINS | sed "s/ /,/g" | sed "s/,,/,/g" | sed "s/,/ /g")
-        do
-            echo "Subdomain: ${i}.${CERT_DOMAIN}"
-            REQUEST_DOMAINS="${REQUEST_DOMAINS} -d ${i}.${CERT_DOMAIN}"
-        done
+
+# Check if CA trusted key is available
+if [[ ! -f "/config/acme.sh/ca.cer" ]]; then 
+    cp /config/acme.sh/default/fullchain.cer /config/acme.sh/ca.cer
+    sleep 1
+fi
+
+
+# Check if variable "Staging" changed
+STAGING_CHANGED="false"
+if [[ -f /config/acme.sh/acme_staging.conf ]]; then
+    source /config/acme.sh/acme_staging.conf
+
+    # Check if state of staging environment variable changed
+    if [[ ! $ACME_STAGING == $CERT_STAGING ]]; then
+        echo "**** ACME config has changed, prepare new certificate ****"
+        STAGING_CHANGED="true"
     fi
+else
+    STAGING_CHANGED="true"
+    echo "**** ACME config has changed, prepare new certificate ****"
+fi
+echo "ACME_STAGING=${CERT_STAGING}" > /config/acme.sh/acme_staging.conf
 
-    # Add subdomains to request domains
-    if [ -n "$CERT_OTHER_DOMAINS" ]; then
-        for i in $(echo $CERT_OTHER_DOMAINS | sed "s/ /,/g" | sed "s/,,/,/g" | sed "s/,/ /g")
-        do
-            echo "Other domain: ${i}.${CERT_DOMAIN}"
-            REQUEST_DOMAINS="${REQUEST_DOMAINS} -d ${i}"
-        done
-    fi
+# Get all domains for certificate issuing
+CERT_FILES=$(env | grep "CERT_FILE_.*" | tr " " "," | tr ",," "," | cut -d'=' -f2)
 
-    # Check if staging environment should be used
-    shopt -s nocasematch
-    if [[ ${CERT_STAGING} = "true" ]]; then
-        echo "Staging: true"
-        STAGING="--staging"
-    else
-        echo "Staging: false"
-        STAGING=""
-    fi
+# check if CERT_DOMAIN was provided and format all parameters
+if [[ $(echo $CERT_FILES | wc -w) == 0 ]]; then
+  echo "ERROR: No domain provided, can not continue with acme challenge! Make sure the \"CERT_DOMAIN\" parameter is provided."
+  sleep infinity
+fi
 
-    # Start nginx for acme
+
+# Start nginx for acme if this is not a renew triggered by cron
+if [[ CRON_JOB == "false" ]]; then
     echo "**** Starting temporary nginx instance for acme challenge ****"
     nohup ./etc/services.d/nginx/run &
     sleep 1
+    nginx -c /config/nginx/nginx.conf -s reload
+fi
 
-    # Request certificate 
-    ./.acme.sh/acme.sh $STAGING \
-        --issue $REQUEST_DOMAINS \
-        --server letsencrypt \
-        --home /config/acme.sh/ \
-        --cert-home /config/acme.sh/ \
-        --config-home /config/acme.sh/ \
-        --webroot /config/www/acme_root \
-        --keylength ec-384 \
-        --ecc \
-        --ocsp \
-        --force \
-        --log /config/logs/acme.sh/acme.log \
-        --cert-file /config/acme.sh/current/cert.cer \
-        --key-file /config/acme.sh/current/privkey.key \
-        --ca-file /config/acme.sh/current/ca.cer \
-        --fullchain-file /config/acme.sh/current/fullchain.cer \
-        --reloadcmd "nginx -c /config/nginx/nginx.conf -s reload"
 
-    # Kill nginx to avoid issues with s6 service
+# Generate arrays to store the path mapping tables
+CERT_PATHS=()
+KEY_PATHS=()
+
+# Validate or generate certificates for all listed domains
+for CERT_FILE in $CERT_FILES; do
+    
+    # make sure all environment variables are lower case
+    CERT_FILE=$(echo "${CERT_FILE,,}")
+    CERT_STAGING=$(echo "${CERT_STAGING,,}")
+
+    # Format and sort Domains
+    FORCE_RENEWAL=$STAGING_CHANGED
+    DOMAINS=$(echo $CERT_FILE | tr "," " " )
+    DOMAINS=($DOMAINS)
+    DOMAINS=($(printf '%s\n' "${DOMAINS[@]}"|sort))
+
+    # Generating mapping table for cert
+    for DOMAIN in ${DOMAINS[@]}
+    do
+        # Remove cert from removal list as it is still needed
+        CERTIFICATES_TO_DELETE=$(echo $CERTIFICATES_TO_DELETE | sed "s/^${DOMAIN}_ecc//g" | sed "s/ ${DOMAIN}_ecc//g" | sed "s/  / /g")
+        
+        # Fill arrays for certificate mapping tables
+        CERT_PATHS+=(${DOMAIN}=/config/acme.sh/${DOMAINS[0]}_ecc/${DOMAINS[0]}_chain.cer)
+        KEY_PATHS+=(${DOMAIN}=/config/acme.sh/${DOMAINS[0]}_ecc/${DOMAINS[0]}.key)
+    done
+
+    # Check if certificate exists
+    if [[ ! -f /config/acme.sh/${DOMAINS[0]}_ecc/fullchain.cer ]]; then
+        FORCE_RENEWAL="true"
+    fi
+
+    # Check currend DNS names of certificate
+    CURRENT_DNS_NAMES=$(openssl x509 -noout -text -in /config/acme.sh/${DOMAINS[0]}_ecc/${DOMAINS[0]}.cer | grep DNS: | sed 's/DNS://g' | sed 's/ //g')
+    if [[ ! $CURRENT_DNS_NAMES == $CERT_FILE ]]; then
+        FORCE_RENEWAL="true"
+    fi
+
+    # build domain string
+    REQUEST_DOMAINS=""
+    for DOMAIN in ${DOMAINS[@]}
+    do
+        REQUEST_DOMAINS="${REQUEST_DOMAINS} -d ${DOMAIN}"
+    done
+
+    # If new certificate needs to be generated, generate it
+    if [[ $FORCE_RENEWAL == "true" ]]; then
+
+        echo "**** Requesting new certificate from LetsEncrypt ****"
+
+        # Move existing certificate in backup folder if a public key is present
+        if [[ -f /config/acme.sh/${DOMAINS[0]}/${DOMAINS[0]}.cer ]]; then 
+            mv /config/acme.sh/${DOMAINS[0]}_ecc /config/acme.sh/backup/${DOMAINS[0]}_ecc
+            sleep 1
+            
+        fi
+        rm -rf /config/acme.sh/backup/${DOMAINS[0]}_ecc
+        sleep 1
+        
+        # Echo affected domains
+        for DOMAIN in ${DOMAINS[@]}
+        do
+            echo "Domain: $DOMAIN"
+        done
+
+        # Check if staging environment should be used
+        shopt -s nocasematch
+        if [[ "${CERT_STAGING}" == "true" ]]; then
+            echo "Staging: true"
+            STAGING="--staging --server letsencrypt_test"
+        else
+            echo "Staging: false"
+            STAGING="--server letsencrypt"
+        fi
+
+        # Request certificate 
+        ./.acme.sh/acme.sh $STAGING \
+            --issue $REQUEST_DOMAINS \
+            --home /config/acme.sh/ \
+            --cert-home /config/acme.sh/ \
+            --config-home /config/acme.sh/ \
+            --webroot /config/www/acme_root \
+            --keylength ec-384 \
+            --ecc \
+            --force \
+            --ca-file /config/acme.sh/ca.cer \
+            --fullchain-file /config/acme.sh/${DOMAINS[0]}_ecc/${DOMAINS[0]}_chain.cer \
+            --log /config/logs/acme.sh/acme.log
+
+    else 
+        # Check if certificate should be renewed within the next 30 days
+        if openssl x509 -in /config/acme.sh/${DOMAINS[0]}_ecc/${DOMAINS[0]}.cer -noout -checkend 2592000 >/dev/null; then 
+            echo "" > /dev/null 
+        else
+            echo "**** ACME will renew the certificate \"${DOMAINS[0]}\" now. ****"
+             # Echo affected domains
+            for DOMAIN in ${DOMAINS[@]}
+            do
+                echo "Domain: $DOMAIN"
+            done
+
+            # Request renewal 
+            ./.acme.sh/acme.sh --renew $REQUEST_DOMAINS \
+                --ecc \
+                --home /config/acme.sh/ \
+                --cert-home /config/acme.sh/ \
+                --config-home /config/acme.sh/ \
+                --log /config/logs/acme.sh/acme.log \
+                --ca-file /config/acme.sh/ca.cer \
+                --fullchain-file /config/acme.sh/${DOMAINS[0]}_ecc/${DOMAINS[0]}_chain.cer \
+                --reloadcmd "nginx -c /config/nginx/nginx.conf -s reload"
+            sleep 1
+        fi
+    fi
+done
+
+# Kill nginx to avoid issues with s6 service if this is not a renew triggered by cron
+if [[ CRON_JOB == "false" ]]; then
     echo "**** Stopping temporary nginx instance ****"
     if pgrep -f "[n]ginx:" > /dev/null; then
         pkill -f [n]ginx:
@@ -140,15 +230,58 @@ if [[ $ACME_STATUS -ne 0 ]] || [[ $CERTIFICATE_EXISTS = false ]]; then
         pkill -9 -f [n]ginx:
         sleep 1
     fi
-
-else
-# Check if current certificate needs to be renewed
-    if openssl x509 -in /config/acme.sh/current/fullchain.cer -noout -checkend 86400 >/dev/null; then 
-        echo "" > /dev/null 
-    else
-        echo "**** ACME will renew the certificate now, this can take some minutes ****"
-        /etc/scripts.d/renew-acme.sh
-        sleep 1
-    fi
 fi
 
+# Update autoconfig file if this was a container restart
+if [[ CRON_JOB == "false" ]]; then
+ 
+    # Get autoconf back from backup
+    mv $AUTOCONF_FILE.bak $AUTOCONF_FILE
+
+    # Build mapping table for certificate public key
+    echo "# Map the host to a certificate public key path" >> $AUTOCONF_FILE
+    echo "map \$host \$certfile {" >> $AUTOCONF_FILE
+    for d in ${CERT_PATHS[@]}
+    do 
+        # Check if file exists
+        CER_FILE=$(echo $d | sed 's/^.*=//')
+        KEY_FILE=$(echo $CER_FILE | sed 's/_chain.cer/.key/g')
+        if [[ -f $CER_FILE && -f $KEY_FILE ]]; then
+            echo "    $d;" | sed 's/=/    /g' >> $AUTOCONF_FILE
+        fi
+    done
+    echo "    default    /config/acme.sh/default/fullchain.cer;" >> $AUTOCONF_FILE
+    echo "}"  >> $AUTOCONF_FILE
+    echo ""  >> $AUTOCONF_FILE
+
+
+    # Build mapping table for certificate private key
+    echo "# Map the host to a certificate private key path" >> $AUTOCONF_FILE
+    echo "map \$host \$keyfile {" >> $AUTOCONF_FILE
+    for d in ${KEY_PATHS[@]}
+    do 
+        # Check if file exists
+        KEY_FILE=$(echo $d | sed 's/^.*=//')
+        CER_FILE=$(echo $KEY_FILE | sed 's/.key/_chain.cer/g')
+        if [[ -f $CER_FILE && -f $KEY_FILE ]]; then
+                echo "    $d;" | sed 's/=/    /g' >> $AUTOCONF_FILE
+        fi
+    done
+    echo "    default    /config/acme.sh/default/privkey.key;" >> $AUTOCONF_FILE
+    echo "}"  >> $AUTOCONF_FILE
+    echo ""  >> $AUTOCONF_FILE
+
+
+    # Delete certificates not more used
+    for i in $CERTIFICATES_TO_DELETE
+    do
+        # Backup certificate if a public key is present
+        CER=$(echo ${i} | sed "s/_ecc//g")
+        if [[ -f /config/acme.sh/${i}/${CER}.cer ]]; then 
+            mv /config/acme.sh/${i} /config/acme.sh/backup/${i}
+            sleep 1
+        fi
+        rm -rf /config/acme.sh/backup/${i}
+        sleep 1
+    done
+fi
