@@ -9,6 +9,9 @@
   - [Nginx configuration](#Nginx-configuration)
   - [GeoIP configuration](#GeoIP-configuration)
   - [OpenID Connect configuration](#OICD-configuration)
+  - [Additional hardenings](#Additional-hardenings)
+    - [HSTS Preload](#HSTS-preload)
+    - [Content Security Policy](#Content-Security-Policy)
 - [Other great projects](#Other-great-projects)
  
 <br/> 
@@ -290,13 +293,14 @@ map $geoip2_data_country_code $allowed_country {
 
 ## OpenID Connect configuration
 
-If you want to use openid conenct to connect e.g. keycloak as an OAuth2 provider you need to add the following content to your server or location block which you want to protect. Update all values with the details you received from your identity provider.
-    - `session_secret` -> A 32 digits session secret which must be predefined so that all worker processes can use it. If you protect multiple sites with the same OAuth2 provider, you shoudl add the same key to all of them.
-    - `oidc_discovery_url` -> The discovery URL of you OAuth instance. For keycloak it is something like `https://example.com/auth/realms/example.com/.well-known/openid-configuration`
-    - `oidc_client_id` -> The client id of the openid-connect client.
-    - `oidc_client_secret` -> The client secret of the openid-connect client.
-    - `oidc_logout_path` -> The logout path of the client application, e.g. `/profile/logout`
-    - `oidc_post_logout_redirect_uri` -> The url to open after lockout, normaly it is the root of the server like `https://app.example.com`
+If you want to use openid conenct to connect e.g. keycloak as an OAuth2 provider you need to add the following content to your protected server or location block. Update all values with the details you received from your identity provider.
+
+  - `session_secret` -> A 32 digits session secret which must be predefined so that all worker processes can use it. If you protect multiple sites with the same OAuth2 provider, you shoudl add the same key to all of them.
+  - `oidc_discovery_url` -> The discovery URL of you OAuth instance. For keycloak it is something like `https://example.com/auth/realms/example.com/.well-known/openid-configuration`
+  - `oidc_client_id` -> The client id of the openid-connect client.
+  - `oidc_client_secret` -> The client secret of the openid-connect client.
+  - `oidc_logout_path` -> The logout path of the client application, e.g. `/profile/logout`
+  - `oidc_post_logout_redirect_uri` -> The url to open after lockout, normaly it is the root of the server like `https://app.example.com`
 ```
 server {
 	listen 443 ssl http2;
@@ -335,7 +339,7 @@ map $http_origin $allow_origin {
 }
 ```
 
-If you identity provider like keycloak is also protected with the secure proxy webserver that you probably need to configure some allow origins for the authentication. Open the keycloak nginx server block setting and make sure to add the below configurations to it. You probably need to whitelist additional headers debending on your client. In my case I had to allow the headers `Authorization, X-Requested-With, X-Emby-Authorization, Upgrade-Insecure-Requests` to get my application SSO to work. You can find this our in the browser network tab. If you notice CORS errors have a look at the request which is send before or short after the CORS error. It may contain a header `Access-Control-Request-Headers`. Add the content of this to the content in the header `Access-Control-Allow-Headers` below.
+If you identity provider like keycloak is also protected with the secure proxy webserver that you probably need to configure some allow origins for the authentication. Open the keycloak nginx server block setting and make sure to add the below configurations to it. You probably need to whitelist additional headers debending on your client applications. In my case I had to allow the headers `Authorization, X-Requested-With, X-Emby-Authorization, Upgrade-Insecure-Requests` to get my application SSO to work. You can find this out in the browser network tab. If you notice CORS errors have a look at the request which is send before or short after the CORS error. It may contain a header `Access-Control-Request-Headers`. Add the content of this to the content in the header `Access-Control-Allow-Headers`.
 ```
 # Overwrite Origin to allow same domain and subdomain origin from the mapping table
 more_clear_headers "Access-Control-Allow-Origin";
@@ -357,6 +361,27 @@ add_header 'Access-Control-Allow-Headers' 'Authorization, X-Requested-With, X-Em
 add_header Vary "Origin";
 ```
 
+<br/>
+<a name="Additional-hardenings"/>
+
+## Additional hardenings
+
+
+<a name="HSTS-Preload"/>
+
+### HSTS Preload
+
+The HSTS Preload functionality is supported by most browsers and enforces a web connection over a secure HTTPS channel. All domains which are listed on this list can only be accessed if they have a valid SSL certificate. If you want to protect your webpage with HSTS preload you can request this here [hstspreload.org](https://hstspreload.org/). Your webserver is already prepared for this and includes the required settings.
+
+
+<a name="Content-Security-Policy"/>
+
+### Content Security Policy
+
+It is recommended to have a strong content security policy (CSP) available for your application. In this docker image the preconfigured CSP is not secure. It is configured in a way that it will not block your applications, but they can be improved. Have a look on your application itself, if it is already sending a strong CSP then just disable the CSP header in the file `/config/nginx/conf.d/security-headers.conf`. If your backend application is sending no or a soft CSP you can use harden the CSP which will be set by the secure proxy with support from this page [csp-evaluator.withgoogle.com](https://csp-evaluator.withgoogle.com/).
+
+
+
 <br/> 
 <a name="Other-great-projects"/>
 
@@ -372,3 +397,5 @@ add_header Vary "Origin";
 - ClamAV antivirus https://www.clamav.net
 - R-FX Networks LMD AV definitions for Webserver https://www.rfxn.com/projects/linux-malware-detect
 - Firehol abusers list https://iplists.firehol.org/?ipset=firehol_abusers_30d
+- Keycloak identity provider https://www.keycloak.org/
+
