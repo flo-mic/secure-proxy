@@ -87,7 +87,7 @@ CERT_FILES=$(env | grep "CERT_FILE_.*" | tr " " "," | tr ",," "," | cut -d'=' -f
 
 # check if CERT_DOMAIN was provided and format all parameters
 if [[ $(echo $CERT_FILES | wc -w) == 0 ]]; then
-  echo "ERROR: No domain provided, can not continue with acme challenge! Make sure the \"CERT_DOMAIN\" parameter is provided."
+  echo "ERROR: No domain provided, can not continue with acme challenge! Make sure the \"CERT_FILE_XXX\" parameter is provided."
   sleep infinity
 fi
 
