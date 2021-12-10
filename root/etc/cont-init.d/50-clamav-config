@@ -26,7 +26,7 @@ ln -s /config/clamav/definitions /var/lib/clamav
 chown clamav:clamav /var/lib/clamav
 
 # Force clamav definition update if no definitions exist (first start)
-if [ ! -f /config/clamav/definitions/main.cvd ]; then
+if [ ! -f /config/clamav/definitions/main.cld ]; then
     echo "**** Clamav definitions missing, downloading them. This will some time... ****"
     freshclam
 fi
