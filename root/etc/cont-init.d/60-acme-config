@@ -92,15 +92,6 @@ if [[ $(echo $CERT_FILES | wc -w) == 0 ]]; then
 fi
 
 
-# Start nginx for acme if this is not a renew triggered by cron
-if [[ CRON_JOB == "false" ]]; then
-    echo "**** Starting temporary nginx instance for acme challenge ****"
-    nohup ./etc/services.d/nginx/run &
-    sleep 1
-    nginx -c /config/nginx/nginx.conf -s reload
-fi
-
-
 # Generate arrays to store the path mapping tables
 CERT_PATHS=()
 KEY_PATHS=()
@@ -151,6 +142,14 @@ for CERT_FILE in $CERT_FILES; do
     if [[ $FORCE_RENEWAL == "true" ]]; then
 
         echo "**** Requesting new certificate from LetsEncrypt ****"
+
+        # Start nginx for acme if no nginx instance is running
+        if ! pgrep -f "[n]ginx:" > /dev/null; then
+            echo "**** Starting temporary nginx instance for acme challenge ****"
+            nohup ./etc/services.d/nginx/run &
+            sleep 1
+            nginx -c /config/nginx/nginx.conf -s reload
+        fi
 
         # Move existing certificate in backup folder if a public key is present
         if [[ -f /config/acme.sh/${DOMAINS[0]}/${DOMAINS[0]}.cer ]]; then 
@@ -219,9 +218,9 @@ for CERT_FILE in $CERT_FILES; do
 done
 
 # Kill nginx to avoid issues with s6 service if this is not a renew triggered by cron
-if [[ CRON_JOB == "false" ]]; then
-    echo "**** Stopping temporary nginx instance ****"
+if [[ $CRON_JOB == "false" ]]; then
     if pgrep -f "[n]ginx:" > /dev/null; then
+        echo "**** Stopping temporary nginx instance ****"
         pkill -f [n]ginx:
         sleep 1
     fi
@@ -233,7 +232,7 @@ if [[ CRON_JOB == "false" ]]; then
 fi
 
 # Update autoconfig file if this was a container restart
-if [[ CRON_JOB == "false" ]]; then
+if [[ $CRON_JOB == "false" ]]; then
  
     # Get autoconf back from backup
     mv $AUTOCONF_FILE.bak $AUTOCONF_FILE
