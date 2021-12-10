@@ -21,6 +21,8 @@ chown secproxy:secproxy /default
 # make sure all environment variables are lower case and properly formated
 UPDATE_CONFIGURATION=$(echo "${UPDATE_CONFIGURATION,,}")
 UPDATE_CONFIGURATION=$(echo "${UPDATE_CONFIGURATION}" | sed "s/\"//g")
+UPDATE_SKIP_FILES=$(echo "${UPDATE_SKIP_FILES,,}")
+UPDATE_SKIP_FILES=$(echo "${UPDATE_SKIP_FILES}" | sed "s/\"//g")
 
 # Remove existing autoconf file
 rm -f /config/nginx/conf.d/autoconf.conf
@@ -35,7 +37,7 @@ do
 	mkdir -p $CONFIG_DIR
 
 	# Check if automatic update was configured
-	if [[ ${UPDATE_CONFIGURATION} = "enabled" ]]; then
+	if [[ ${UPDATE_CONFIGURATION} = "enabled" && ! "${UPDATE_SKIP_FILES[@]}" =~ "${CONFIG_PATH}" ]]; then
 		# Do not overwrite files in sites-available/* 
 		if [[ ${CONFIG_PATH} != "/config/nginx/sites-available/"* ]]; then
 			cp $i $CONFIG_PATH

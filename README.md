@@ -96,6 +96,7 @@ All configuration files are stored in `/config`. Therefore it is recommended to 
 | SMTP_PASSWORD           | no          | Smtp account password. Required if parameter `SMTP_SERVER` without `SMTP_PASSWORD_FILE` parameter was used |
 | SMTP_PASSWORD_FILE      | no          | Smtp account password which can be linked from a file or an docker secret. It is recommended to use this instead of `SMTP_PASSWORD` as the password is not written in cleartext. Required if parameter `SMTP_SERVER` without `SMTP_PASSWORD` was provided|
 | UPDATE_CONFIGURATION    | no          | Configure automatic updates for configuration files. By default the container informs you about config updates in the container log on startup and only updates required configuration files. You need to remove the outdated config files and restart the container to get the latest updates. To configure automatic updates set this variable to `enabled`. This will not delete your configured sites, it will just update the configuration files. Default is `disabled` |
+| UPDATE_SKIP_FILES       | no          | With this environmne tvariable you can specify files which should not be automatically updated as you modified them manually. All files in `/config/nginx/sites-available/` are skipped by default. IF you want to skip also the security-headers you can include them with `/config/nginx/conf.d/security-headers.conf` |
 
 <br/> 
 <a name="Docker-Compose-minimal-Setup"/>
