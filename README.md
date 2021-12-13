@@ -184,7 +184,7 @@ services:
       - crowdsec_data:/var/lib/crowdsec/data/
       - nginx_logs:/var/log/nginx:ro
     environment:
-      - COLLECTIONS=crowdsecurity/nginx crowdsecurity/base-http-scenarios crowdsecurity/whitelist-good-actors
+      - COLLECTIONS=crowdsecurity/nginx crowdsecurity/base-http-scenarios crowdsecurity/whitelist-good-actors crowdsecurity/http-cve
       - PARSERS=crowdsecurity/whitelists
       - REGISTER_TO_ONLINE_API=true
     restart: unless-stopped
@@ -377,8 +377,11 @@ The HSTS Preload functionality is supported by most browsers and enforces a web 
 
 ### Content Security Policy
 
-It is recommended to have a strong content security policy (CSP) available for your application. In this docker image the preconfigured CSP is not secure. It is configured in a way that it will not block your applications, but they can be improved. Have a look on your application itself, if it is already sending a strong CSP then just disable the CSP header in the file `/config/nginx/conf.d/security-headers.conf`. If your backend application is sending no or a soft CSP you can use harden the CSP which will be set by the secure proxy with support from this page [csp-evaluator.withgoogle.com](https://csp-evaluator.withgoogle.com/).
-
+It is recommended to have a strong content security policy (CSP) available for your application. Have a look on your application itself, if it is already sending a strong CSP you are good to go. If not have a look on the CSP generator from "https://cspscanner.com". As an alternative you can also use the Firefox extension "https://addons.mozilla.org/en-US/firefox/addon/laboratory-by-mozilla/" to generate a CSP. You can add a CSP by e.g. adding something like this to your server block location:
+```
+# Add CSP to mitigate and report XSS attack
+more_set_headers "Content-Security-Policy: default-src 'none'; upgrade-insecure-requests; connect-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; font-src 'self' data:; img-src 'self' data: blob:; script-src 'self'; style-src 'self'";
+```
 
 
 <br/> 
