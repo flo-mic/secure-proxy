@@ -29,7 +29,7 @@ LOG_FILE=/config/logs/refresh-agent/refresh-agent.log
 FILE=/config/www/robots.txt
 if [[ ! -f "$FILE" || $(find "${FILE}" -mtime +1 -print) ]]; then
   echo "$(date "+%F %T") Updating ${FILE}." >> $LOG_FILE
-  curl -sL https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/blob/master/robots.txt/robots.txt \
+  curl -sL https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/master/robots.txt/robots.txt \
     -o $FILE 2>&1 | tee -a $LOG_FILE
 fi
 
