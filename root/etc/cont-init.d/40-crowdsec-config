@@ -5,12 +5,23 @@ CROWDSEC_URL=$(echo "${CROWDSEC_URL,,}")
 CROWDSEC_API_TOKEN=$(echo "${CROWDSEC_API_TOKEN,,}")
 CROWDSEC_API_TOKEN_FILE=$(echo "${CROWDSEC_API_TOKEN_FILE,,}")
 
+# Importand lua scrip paths
+LUA_SCRIPT=/usr/local/lib/lua/crowdsec_nginx.lua
+LUA_SCRIPT_DISABLED=/usr/local/lib/lua/crowdsec_nginx.lua.disabled
+
 # If crowdsec url and configuration is not available skip config
 if [[ -z $CROWDSEC_URL ]]; then
+    # Disable crowdsec Lua file
+    [ -f $LUA_SCRIPT ] && mv $LUA_SCRIPT $LUA_SCRIPT_DISABLED
     exit 0
 elif [[ -z $CROWDSEC_API_TOKEN ]] && [[ -z $CROWDSEC_API_TOKEN_FILE ]]; then
+    # Disable crowdsec Lua file
+    [ -f $LUA_SCRIPT ] && mv $LUA_SCRIPT $LUA_SCRIPT_DISABLED
     exit 0
 fi
+
+# Enable crowdsec lua file if crowdsec should be used
+[ -f $LUA_SCRIPT_DISABLED ] && mv $LUA_SCRIPT_DISABLED $LUA_SCRIPT
 
 # Configure Crowdsec api url
 CROWDSEC_URL=$(echo $CROWDSEC_URL | sed -e 's/\//\\\//g')
