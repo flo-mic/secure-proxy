@@ -23,6 +23,12 @@ fi
 # Enable crowdsec lua file if crowdsec should be used
 [ -f $LUA_SCRIPT_DISABLED ] && mv $LUA_SCRIPT_DISABLED $LUA_SCRIPT
 
+# Load Lua crowdsec file
+AUTOCONF_FILE=/config/nginx/conf.d/autoconf.conf
+echo "# Load required lua crowdsec module" >> $AUTOCONF_FILE
+echo "access_by_lua_file '/usr/local/lib/lua/crowdsec/access.lua';" >> $AUTOCONF_FILE
+echo "" >> $AUTOCONF_FILE
+
 # Configure Crowdsec api url
 CROWDSEC_URL=$(echo $CROWDSEC_URL | sed -e 's/\//\\\//g')
 sed -i "s/^API_URL=.*/API_URL=${CROWDSEC_URL}/" /usr/local/lib/lua/crowdsec/crowdsec.conf
