@@ -1,8 +1,8 @@
 
 # redirect traffic to https
 server {
-	listen 80;
-	listen [::]:80;
+	listen 80 default_server;
+	listen [::]:80 default_server;
 	server_name _;
 
 	return 301 https://$host$request_uri;
@@ -17,8 +17,12 @@ server {
 	root /config/www;
 	index index.html;
 
-	# include site related configurations like ssl, error pages, robots deny list etc
-	include /config/nginx/sites-conf.d/*.conf;
+	# include site related configurations for ssl, error pages, robots, deny list and geoip
+	include /config/nginx/sites-conf.d/deny-rules.conf;
+	include /config/nginx/sites-conf.d/error-pages.conf;
+	include /config/nginx/sites-conf.d/geoip.conf;
+	include /config/nginx/sites-conf.d/robots.conf;
+	include /config/nginx/sites-conf.d/ssl.conf;
 
 	# Default location in case no location is specified
 	location / {
